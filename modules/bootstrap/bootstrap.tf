@@ -15,11 +15,6 @@ resource "aws_s3_bucket" "state_bucket" {
   versioning {
     enabled = true
   }
-
-  tags = {
-    Terraform = "true"
-    Cost-Center = "shooting-insights"
-  }
 }
 
 # Build a DynamoDB to use for terraform state locking
@@ -36,11 +31,6 @@ resource "aws_dynamodb_table" "tf_lock_state" {
   attribute {
     name = "LockID"
     type = "S"
-  }
-
-  tags = {
-    Name      = var.dynamo_db_table_name
-    Terraform = "true"
   }
 }
 
@@ -65,4 +55,134 @@ output "s3_logging_bucket_id" {
 }
 output "s3_logging_bucket" {
   value = aws_s3_bucket.s3_logging_bucket.bucket
+}
+
+# Create an IAM role for Lambda to assume
+resource "aws_iam_role" "lambda_iam_role" {
+  name = var.lambda_iam_role_name
+
+  assume_role_policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "Service": "lambda.amazonaws.com"
+      },
+      "Action": "sts:AssumeRole"
+    }
+  ]
+}
+EOF
+}
+
+# Output the Lambda IAM role
+output "lambda_iam_role_arn" {
+  value = aws_iam_role.lambda_iam_role.arn
+}
+
+# Create an IAM role policy for Lambda to use implicitly
+resource "aws_iam_role_policy" "lambda_iam_role_policy" {
+  name = var.lambda_iam_role_policy_name
+  role = aws_iam_role.lambda_iam_role.name
+
+  policy = <<POLICY
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Resource": [
+        "*"
+      ],
+      "Action": [
+        "logs:CreateLogGroup",
+        "logs:CreateLogStream",
+        "logs:PutLogEvents"
+      ]
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "s3:*"
+      ],
+      "Resource": [
+        "${aws_s3_bucket.s3_logging_bucket.arn}",
+        "${aws_s3_bucket.s3_logging_bucket.arn}/*",
+        "${aws_s3_bucket.state_bucket.arn}",
+        "${aws_s3_bucket.state_bucket.arn}/*"
+      ]
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "dynamodb:*"
+      ],
+      "Resource": "${aws_dynamodb_table.tf_lock_state.arn}"
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "iam:Get*",
+        "iam:List*"
+      ],
+      "Resource": "${aws_iam_role.lambda_iam_role.arn}"
+    },
+    {
+      "Effect": "Allow",
+      "Action": "sts:AssumeRole",
+      "Resource": "${aws_iam_role.lambda_iam_role.arn}"
+    }
+  ]
+}
+POLICY
+}
+
+# Create IAM role for Terraform builder to assume
+resource "aws_iam_role" "tf_iam_assumed_role" {
+  name = "TerraformAssumedIamRole"
+
+  assume_role_policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "AWS": "${aws_iam_role.lambda_iam_role.arn}"
+      },
+      "Action": "sts:AssumeRole"
+    }
+  ]
+}
+EOF
+
+}
+
+# Create broad IAM policy Terraform to use to build, modify resources
+resource "aws_iam_policy" "tf_iam_assumed_policy" {
+  name = "TerraformAssumedIamPolicy"
+
+  policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "AllowAllPermissions",
+      "Effect": "Allow",
+      "Action": [
+        "*"
+      ],
+      "Resource": "*"
+    }
+  ]
+}
+EOF
+}
+
+# Attach IAM assume role to policy
+resource "aws_iam_role_policy_attachment" "tf_iam_attach_assumed_role_to_permissions_policy" {
+  role       = aws_iam_role.tf_iam_assumed_role.name
+  policy_arn = aws_iam_policy.tf_iam_assumed_policy.arn
 }
