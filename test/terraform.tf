@@ -11,12 +11,6 @@ terraform {
 provider "aws" {
   region  = "us-east-1"
   
-  assume_role {
-    role_arn     = "arn:aws:iam::272773485930:role/TerraformAssumedIamRole"
-    session_name = "terraform"
-  }
-  
-
   default_tags {
    tags = {
      Terraform   = "true"
@@ -33,6 +27,4 @@ module "bootstrap" {
   s3_tfstate_bucket                   = "shooting-insights-terraform-tfstate"
   s3_logging_bucket_name              = "shooting-insights-logging-bucket"
   dynamo_db_table_name                = "shooting-insights-dynamodb-terraform-locking"
-  terraform_iam_role_name             = "TerraformIamRole"
-  terraform_iam_role_policy_name      = "TerraformIamRolePolicy"
 }
