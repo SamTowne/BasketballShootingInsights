@@ -33,6 +33,6 @@ module "bootstrap" {
   s3_tfstate_bucket                   = "shooting-insights-terraform-tfstate"
   s3_logging_bucket_name              = "shooting-insights-logging-bucket"
   dynamo_db_table_name                = "shooting-insights-dynamodb-terraform-locking"
-  lambda_iam_role_name                = "LambdaIamRole"
-  lambda_iam_role_policy_name         = "LambdaIamRolePolicy"
+  terraform_iam_role_name             = "TerraformIamRole"
+  terraform_iam_role_policy_name      = "TerraformIamRolePolicy"
 }
