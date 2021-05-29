@@ -10,11 +10,3 @@ variable "s3_logging_bucket_name" {
 variable "dynamo_db_table_name" {
   description = "Name of DynamoDB table used for Terraform locking"
 }
-
-variable "terraform_iam_role_name" {
-  description = "Name for IAM Role utilized by CodeBuild"
-}
-
-variable "terraform_iam_role_policy_name" {
-  description = "Name for IAM policy used by CodeBuild"
-}
