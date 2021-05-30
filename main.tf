@@ -32,9 +32,9 @@ module "bootstrap" {
 module "lambda" {
   source = "./modules/lambda"
   lambda_role_name           = "shooting_insights_lambda_role"
-  lambda_function_file_name  = "modules/lambda/files/lambda_test/lambda_test.zip"
+  lambda_function_file_name  = "./modules/lambda/files/lambda_test/lambda_test.zip"
   lambda_function_name       = "lambda_test"
-  lambda_function_handler    = "modules/lambda/files/lambda_test/lambda_test.py"
+  lambda_function_handler    = "./modules/lambda/files/lambda_test/lambda_test.py"
   lambda_function_runtime    = "python3.8"
 
   lambda_policy_json                   = <<EOT
