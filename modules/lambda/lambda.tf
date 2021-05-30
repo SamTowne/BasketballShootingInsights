@@ -1,5 +1,5 @@
-resource "aws_iam_role" "iam_for_lambda" {
-  name = var.lambda_iam_assume_role_name
+resource "aws_iam_role" "lambda_role" {
+  name = var.lambda_role_name
 
   assume_role_policy = <<EOF
 {
@@ -18,22 +18,21 @@ resource "aws_iam_role" "iam_for_lambda" {
 EOF
 }
 
-resource "aws_lambda_function" "test_lambda" {
-  filename      = "lambda_function_payload.zip"
-  function_name = "lambda_function_name"
-  role          = aws_iam_role.iam_for_lambda.arn
-  handler       = "exports.test"
+resource "aws_iam_policy" "lambda_policy" {
+  name = "${var.lambda_function_name}_policy"
+  description = "iam policy for ${var.lambda_function_name}"
+  policy = var.lambda_policy_json
+}
 
-  # The filebase64sha256() function is available in Terraform 0.11.12 and later
-  # For Terraform 0.11.11 and earlier, use the base64sha256() function and the file() function:
-  # source_code_hash = "${base64sha256(file("lambda_function_payload.zip"))}"
-  source_code_hash = filebase64sha256("lambda_function_payload.zip")
+resource "aws_iam_role_policy_attachment" "lambda_policy_attachment" {
+  role       = aws_iam_role.lambda_role.name
+  policy_arn = aws_iam_policy.lambda_policy.arn
+}
 
-  runtime = "nodejs12.x"
-
-  environment {
-    variables = {
-      foo = "bar"
-    }
-  }
+resource "aws_lambda_function" "lambda" {
+  filename         = var.lambda_function_file_name
+  function_name    = var.lambda_function_name
+  role             = aws_iam_role.lambda_role.arn
+  handler          = var.lambda_function_handler
+  runtime          = var.lambda_function_runtime
 }
