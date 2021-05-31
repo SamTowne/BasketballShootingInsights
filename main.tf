@@ -30,14 +30,15 @@ module "bootstrap" {
 }
 
 module "lambda" {
-  source = "./modules/lambda"
-  lambda_role_name           = "shooting_insights_lambda_role"
-  lambda_function_file_name  = "modules/lambda/files/lambda_test/lambda_test.zip"
-  lambda_function_name       = "lambda_test"
-  lambda_function_handler    = "modules/lambda/files/lambda_test/lambda_test.py"
-  lambda_function_runtime    = "python3.8"
+  source              = "./modules/lambda"
+  role                = "shooting_insights_lambda_role"
+  filename            = "${module.lambda.output_path}"
+  function_name       = "shooting_insights"
+  handler             = "shooting_insights.lambda_handler"
+  runtime             = "python3.8"
+  source_code_hash    = filebase64sha256(module.lambda.output_path)
 
-  lambda_policy_json                   = <<EOT
+  lambda_policy_json  = <<EOT
 {
   "Version": "2012-10-17",
   "Statement": [

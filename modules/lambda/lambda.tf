@@ -1,5 +1,5 @@
 resource "aws_iam_role" "lambda_role" {
-  name = var.lambda_role_name
+  name = var.role
 
   assume_role_policy = <<EOF
 {
@@ -19,8 +19,8 @@ EOF
 }
 
 resource "aws_iam_policy" "lambda_policy" {
-  name = "${var.lambda_function_name}_policy"
-  description = "iam policy for ${var.lambda_function_name}"
+  name = "${var.function_name}_policy"
+  description = "iam policy for ${var.function_name}"
   policy = var.lambda_policy_json
 }
 
@@ -30,9 +30,24 @@ resource "aws_iam_role_policy_attachment" "lambda_policy_attachment" {
 }
 
 resource "aws_lambda_function" "lambda" {
-  filename         = var.lambda_function_file_name
-  function_name    = var.lambda_function_name
+  filename         = var.filename
+  function_name    = var.function_name
   role             = aws_iam_role.lambda_role.arn
-  handler          = var.lambda_function_handler
-  runtime          = var.lambda_function_runtime
+  handler          = var.handler
+  runtime          = var.runtime
+  source_code_hash = var.source_code_hash
+}
+
+data "archive_file" "lambda" {
+  type = "zip"
+  source_file = "./modules/lambda/${var.function_name}.py"
+  output_path = "./modules/lambda/${var.function_name}_payload.zip"
+}
+
+output "source_file" {
+  value = data.archive_file.lambda.source_file
+}
+
+output "output_path" {
+  value = data.archive_file.lambda.output_path
 }
