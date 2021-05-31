@@ -7,6 +7,10 @@ variable "s3_logging_bucket_name" {
   description = "Name of S3 bucket to use for access logging"
 }
 
+variable "s3_data_bucket_name" {
+  description = "Name of S3 bucket to use for data"
+}
+
 variable "dynamo_db_table_name" {
   description = "Name of DynamoDB table used for Terraform locking"
 }

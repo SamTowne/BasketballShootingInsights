@@ -49,10 +49,30 @@ resource "aws_s3_bucket" "s3_logging_bucket" {
   }
 }
 
+# Build an AWS S3 bucket for storing lambda data
+resource "aws_s3_bucket" "s3_data_bucket" {
+  bucket = var.s3_data_bucket_name
+  acl    = "private"
+
+  server_side_encryption_configuration {
+    rule {
+      apply_server_side_encryption_by_default {
+        sse_algorithm = "AES256"
+      }
+    }
+  }
+}
+
 # Output name of S3 logging bucket back to main.tf
 output "s3_logging_bucket_id" {
   value = aws_s3_bucket.s3_logging_bucket.id
 }
 output "s3_logging_bucket" {
   value = aws_s3_bucket.s3_logging_bucket.bucket
+}
+output "s3_data_bucket" {
+  value = aws_s3_bucket.s3_data_bucket.bucket
+}
+output "s3_data_bucket_arn" {
+  value = aws_s3_bucket.s3_data_bucket.arn
 }
