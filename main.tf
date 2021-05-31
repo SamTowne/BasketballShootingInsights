@@ -26,6 +26,7 @@ module "bootstrap" {
   source                  = "./modules/bootstrap"
   s3_tfstate_bucket       = "shooting-insights-terraform-tfstate"
   s3_logging_bucket_name  = "shooting-insights-logging-bucket"
+  s3_data_bucket_name     = "shooting-insights-data"
   dynamo_db_table_name    = "shooting-insights-dynamodb-terraform-locking"
 }
 
@@ -50,7 +51,16 @@ module "lambda" {
               "logs:PutLogEvents"
           ],
           "Resource": "*"
-      }
+      },
+      {
+          "Effect": "Allow",
+          "Action": [
+              "s3:PutObject"
+          ],
+          "Resource": [
+              "${module.bootstrap.s3_data_bucket_arn}"
+          ]
+      }      
   ]
 }
 EOT
