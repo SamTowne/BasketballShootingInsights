@@ -21,6 +21,19 @@ provider "aws" {
  }
 }
 
+provider "google" {
+  region  = "us-east-1"
+
+  default_tags {
+   tags = {
+     Terraform   = "true"
+     Environment = "Test"
+     Owner       = "Sam"
+     Project     = "ShootingInsights"
+   }
+ }
+}
+
 ## Build an S3 bucket and DynamoDB for Terraform state and locking
 module "bootstrap" {
   source                  = "./modules/bootstrap"
@@ -33,7 +46,7 @@ module "bootstrap" {
 module "lambda" {
   source              = "./modules/lambda"
   role                = "shooting_insights_lambda_role"
-  filename            = "${module.lambda.output_path}"
+  filename            = module.lambda.output_path
   function_name       = "shooting_insights"
   handler             = "shooting_insights.lambda_handler"
   runtime             = "python3.8"

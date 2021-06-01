@@ -53,6 +53,29 @@ resource "aws_s3_bucket" "s3_logging_bucket" {
 resource "aws_s3_bucket" "s3_data_bucket" {
   bucket = var.s3_data_bucket_name
   acl    = "private"
+  policy = <<EOT
+{
+  "Id": "SIDataBucketPolicy",
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "lambda",
+      "Action": [
+        "s3:PutObject"
+      ],
+      "Effect": "Allow",
+      "Resource": [
+        "arn:aws:s3:::shooting-insights-data/*"
+      ],
+      "Principal": {
+        "AWS": [
+          "arn:aws:iam::272773485930:role/shooting_insights_lambda_role"
+        ]
+      }
+    }
+  ]
+}
+  EOT
 
   server_side_encryption_configuration {
     rule {
