@@ -21,19 +21,6 @@ provider "aws" {
  }
 }
 
-provider "google" {
-  region  = "us-east-1"
-
-  default_tags {
-   tags = {
-     Terraform   = "true"
-     Environment = "Test"
-     Owner       = "Sam"
-     Project     = "ShootingInsights"
-   }
- }
-}
-
 ## Build an S3 bucket and DynamoDB for Terraform state and locking
 module "bootstrap" {
   source                  = "./modules/bootstrap"
