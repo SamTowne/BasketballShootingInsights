@@ -5,38 +5,44 @@ from botocore.exceptions import ClientError
 
 def lambda_handler(event, context):
     
+    ### Loads json and dump into s3 bucket ###
+    
     body = json.loads("{}".format(event['body']))
     
     bucket_name = "shooting-insights-data"
+    
+    # TODO: generate unique files or consider alternatives ###
     file_name = "george.txt"
     
     s3_path = "/test/" + file_name
+    
     s3 = boto3.resource("s3")
     
     s3.Bucket(bucket_name).put_object(Key=s3_path, Body=json.dumps(body))
     
+    ### Shots made and shooting percentage ###
+    # TODO move this functionality into individual functions.. with try catches
+    spot_1 = body["spot_1"]
+    spot_2 = body["spot_2"]
+    spot_3 = body["spot_3"]
+    spot_4 = body["spot_4"]
+    spot_5 = body["spot_5"]
+    spot_6 = body["spot_6"]
+    spot_7 = body["spot_7"]
+    spot_8 = body["spot_8"]
+    spot_9 = body["spot_9"]
+    spot_10 = body["spot_10"]
+    spot_11 = body["spot_11"]
+    
+    shots_made = int(spot_1) + int(spot_2) + int(spot_3) + int(spot_4) + int(spot_5) + int(spot_6) + int(spot_7) + int(spot_8) + int(spot_9) + int(spot_10) + int(spot_11)
+    
     shots_attempted = 110
-    shots_made = 0
     
-    # for num in range(10):
-    #     shots_made += body["shots_made_spot_"+str(num+1)] 
+    shooting_percentage_long = 100 * float(shots_made)/float(shots_attempted)
+    shooting_percentage = round(shooting_percentage_long,3)
     
-    print(shots_made)
-    shots_made_spot_1 = body["shots_made_spot_1"]
-    shots_made_spot_2 = body["shots_made_spot_2"]
-    shots_made_spot_3 = body["shots_made_spot_3"]
-    # shots_made_spot_4 = response[3].getResponse();
-    # shots_made_spot_5 = response[4].getResponse();
-    # shots_made_spot_6 = response[5].getResponse();
-    # shots_made_spot_7 = response[6].getResponse();
-    # shots_made_spot_8 = 
-    # shots_made_spot_9 = 
-    # shots_made_spot_10 = 
-    # shots_made_spot_11 =
+    ### simple email service ###
     
-    shots_made = shots_made_spot_1 + shots_made_spot_2 + shots_made_spot_3
-    
-    #simple email service
     # This address must be verified with Amazon SES.
     SENDER = "Sender Name <chmod777recursively@gmail.com>"
     
@@ -48,26 +54,26 @@ def lambda_handler(event, context):
     AWS_REGION = "us-east-1"
     
     # The subject line for the email.
-    SUBJECT = "Shooting Drill Results"
+    SUBJECT = "3 Point Shooting Drill"
     
     # The email body for recipients with non-HTML email clients.
-    BODY_TEXT = ("Amazon SES Test (Python)\r\n"
-                 "This email was sent with Amazon SES using the "
-                 "AWS SDK for Python (Boto)."
-                )
+    BODY_TEXT = ""# "Dear Samuel," + "\r\n" + "Here are your shooting results:" +"\r\n"+ "Shots Made = " + shots_made + "\r\n" + "Shooting Percentage = " + shooting_percentage
                 
     # The HTML body of the email.
     BODY_HTML = """<html>
     <head></head>
     <body>
-      <h1>Amazon SES Test (SDK for Python)</h1>
-      <p>This email was sent with
-        <a href='https://aws.amazon.com/ses/'>Amazon SES</a> using the
-        <a href='https://aws.amazon.com/sdk-for-python/'>
-          AWS SDK for Python (Boto)</a>.</p>
+      <h1>Shooting Insights</h1>
+      <h3> a serverless app created by Sam Towne</h3>
+      <p>Dear Samuel,</p>
+      <br>
+      <p>You made {shots} shots out of 110 with a shooting percentage of {shot_perc}%.</p>
+      <br>
+      <p>Raw json body:</p>
+      <p>{json_body}</p>
     </body>
     </html>
-                """            
+                """.format(shots=shots_made,shot_perc=shooting_percentage,json_body=body)            
     
     # The character encoding for the email.
     CHARSET = "UTF-8"
@@ -76,38 +82,38 @@ def lambda_handler(event, context):
     client = boto3.client('ses',region_name=AWS_REGION)
     
     # Try to send the email.
-    try:
+    # try:
         #Provide the contents of the email.
-        response = client.send_email(
-            Destination={
-                'ToAddresses': [
-                    RECIPIENT,
-                ],
-            },
-            Message={
-                'Body': {
-                    'Html': {
-                        'Charset': CHARSET,
-                        'Data': BODY_HTML,
-                    },
-                    'Text': {
-                        'Charset': CHARSET,
-                        'Data': BODY_TEXT,
-                    },
-                },
-                'Subject': {
+    response = client.send_email(
+        Destination={
+            'ToAddresses': [
+                RECIPIENT,
+            ],
+        },
+        Message={
+            'Body': {
+                'Html': {
                     'Charset': CHARSET,
-                    'Data': SUBJECT,
+                    'Data': BODY_HTML,
+                },
+                'Text': {
+                    'Charset': CHARSET,
+                    'Data': BODY_TEXT,
                 },
             },
-            Source=SENDER,
-        )
+            'Subject': {
+                'Charset': CHARSET,
+                'Data': SUBJECT,
+            },
+        },
+        Source=SENDER,
+    )# TODO: why does the error handling cause this to crash?
     # Display an error if something goes wrong.	
-    except ClientError as e:
-        print(e.response['Error']['Message'])
-    else:
-        print("Email sent! Message ID:"),
-        print(response['MessageId'])    
+    # except ClientError as e:
+    #     print(e.response['Error']['Message'])
+    # else:
+    #     print("Email sent! Message ID:"),
+    #     print(response['MessageId'])    
         
     return {
         'statusCode': 200,

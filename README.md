@@ -1,8 +1,10 @@
-# ShootingInsights
+# 3 Point Shooting Drill
 
-Serverless project to email basketball stats from a shooting drill.
+Serverless project to email basketball stats from a shooting drill. I fill out a google form to record how many shots I make from 11 spots behind the 3 point line. I attempt 10 shots from each location for a total of 110 attempts. The form submit button triggers this app. 
 
-### App Flow
+![half court shooting locations](img/half_court.png)
+
+### App Flow (Serverless!)
 
 Google Form Submit => Google Trigger => Google Apps Script HTTP POST (node.js) => Amazon API Gateway => AWS Lambda (python)
 
