@@ -48,7 +48,9 @@ module "lambda" {
           "Action": [
               "logs:CreateLogGroup",
               "logs:CreateLogStream",
-              "logs:PutLogEvents"
+              "logs:PutLogEvents",
+              "ses:SendEmail",
+              "ses:SendRawEmail"
           ],
           "Resource": "*"
       },
