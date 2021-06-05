@@ -18,7 +18,7 @@ def lambda_handler(event, context):
     
     s3 = boto3.resource("s3")
     
-    s3.Bucket(bucket_name).put_object(Key=s3_path, Body=json.dumps(body), ContentType="application/json")
+    s3.Bucket(bucket_name).put_object(Key=s3_path, Body=json.dumps(body), ContentType="application/json", )
     
     ### Shots made and shooting percentage ###
     # TODO move this functionality into individual functions.. with try catches
@@ -33,6 +33,7 @@ def lambda_handler(event, context):
     spot_9 = body["spot_9"]
     spot_10 = body["spot_10"]
     spot_11 = body["spot_11"]
+    temp = body["temp"]
     
     shots_made = int(spot_1) + int(spot_2) + int(spot_3) + int(spot_4) + int(spot_5) + int(spot_6) + int(spot_7) + int(spot_8) + int(spot_9) + int(spot_10) + int(spot_11)
     
@@ -64,16 +65,19 @@ def lambda_handler(event, context):
     <head></head>
     <body>
       <h1>Shooting Insights</h1>
-      <h3> a serverless app created by Sam Towne</h3>
+      <br>
       <p>Dear Samuel,</p>
       <br>
-      <p>You made {shots} shots out of 110 with a shooting percentage of {shot_perc}%.</p>
+      <p>You made <b>{shots} shots</b> out of 110.</p>
+      <p>Your shooting percentage was <b>{shot_perc}%</b>.</p>
+      <p>The temperature was <b>{temperature}&deg;F</b>.</p>
       <br>
-      <p>Raw json body:</p>
+      <p>The data from this shooting drill was stored to an AWS S3 Bucket because why not:</p>
       <p>{json_body}</p>
+      <h4>A serverless app by Sam Towne ¯\_(ツ)_/¯</h4>
     </body>
     </html>
-                """.format(shots=shots_made,shot_perc=shooting_percentage,json_body=body)            
+                """.format(shots=shots_made,shot_perc=shooting_percentage,temperature=temp,json_body=body)            
     
     # The character encoding for the email.
     CHARSET = "UTF-8"
