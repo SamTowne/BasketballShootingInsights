@@ -12,7 +12,7 @@ def lambda_handler(event, context):
     
     bucket_name = "shooting-insights-data"
     
-    file_name = str(uuid.uuid4())
+    file_name = str(uuid.uuid4()) + ".json"
     
     s3_path = "/test/" + file_name
     
