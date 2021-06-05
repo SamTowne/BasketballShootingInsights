@@ -1,24 +1,24 @@
 import json
 import boto3
 import urllib.parse
+import uuid
 from botocore.exceptions import ClientError
 
 def lambda_handler(event, context):
     
-    ### Loads json and dump into s3 bucket ###
+    ### Loads json, sets a unique name (uuid4), and dumps the file into an s3 bucket ###
     
     body = json.loads("{}".format(event['body']))
     
     bucket_name = "shooting-insights-data"
     
-    # TODO: generate unique files or consider alternatives ###
-    file_name = "george.txt"
+    file_name = str(uuid.uuid4())
     
     s3_path = "/test/" + file_name
     
     s3 = boto3.resource("s3")
     
-    s3.Bucket(bucket_name).put_object(Key=s3_path, Body=json.dumps(body))
+    s3.Bucket(bucket_name).put_object(Key=s3_path, Body=json.dumps(body), ContentType="application/json")
     
     ### Shots made and shooting percentage ###
     # TODO move this functionality into individual functions.. with try catches
