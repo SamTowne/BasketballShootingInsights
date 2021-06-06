@@ -37,7 +37,7 @@ def lambda_handler(event, context):
     
     shots_made = int(spot_1) + int(spot_2) + int(spot_3) + int(spot_4) + int(spot_5) + int(spot_6) + int(spot_7) + int(spot_8) + int(spot_9) + int(spot_10) + int(spot_11)
     
-    shots_attempted = 110
+    shots_attempted = 44
     
     shooting_percentage_long = 100 * float(shots_made)/float(shots_attempted)
     shooting_percentage = round(shooting_percentage_long,3)
@@ -68,7 +68,7 @@ def lambda_handler(event, context):
       <br>
       <p>Dear Samuel,</p>
       <br>
-      <p>You made <b>{shots} shots</b> out of 110.</p>
+      <p>You made <b>{shots} shots</b> out of {attempted}.</p>
       <p>Your shooting percentage was <b>{shot_perc}%</b>.</p>
       <p>The temperature was <b>{temperature}&deg;F</b>.</p>
       <br>
@@ -77,7 +77,7 @@ def lambda_handler(event, context):
       <h4>A serverless app by Sam Towne ¯\_(ツ)_/¯</h4>
     </body>
     </html>
-                """.format(shots=shots_made,shot_perc=shooting_percentage,temperature=temp,json_body=body)            
+                """.format(shots=shots_made,attempted=shots_attempted,shot_perc=shooting_percentage,temperature=temp,json_body=body)            
     
     # The character encoding for the email.
     CHARSET = "UTF-8"
