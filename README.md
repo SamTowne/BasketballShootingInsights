@@ -1,27 +1,29 @@
-# 3 Point Shooting Drill
+# Shooting Insights
 
-Serverless project to email basketball stats from a shooting drill. I fill out a google form to record how many shots I make from 11 spots behind the 3 point line. I attempt 10 shots from each location for a total of 110 attempts. The form submit button triggers this app. 
+Shooting Insights provides basketball shooting analytics. The data is obtained from three point shooting drill practice sessions. The primary data points are shots made and the temperature during the drill. 
 
-![half court shooting locations](img/half_court.png)
+## App Structure
+The Application consists of 4 parts.
 
-### App Flow (Serverless!)
+### 1. Bootstrap
+Bootstrap builds the app. It creates cloud services and tells them to play nicely with one another. Terraform is the primary tool used for this.
 
-Google Form Submit => Google Trigger => Google Apps Script HTTP POST (node.js) => Amazon API Gateway => AWS Lambda (python)
+### 2. Collection
+Collection feeds data into the app. The entry point is a Google form. The user inputs the results of their shooting drill. This includes the shots made from each location and the current temperature. Submission of the form kicks off a serverless app flow to store the data in AWS S3 for further processing.
 
-The python function stores the raw json to an s3 bucket for further processing. Then, it calculates some stats and emails those to me.
+### 3. Processing
+The collection step results in raw json objects stored in s3. Processing preps that data for use by analytics services.
 
-### Considerations
+### 4. Analytics
+Analytics receives the processed data and provides some pretty visualizations.
 
-What other stats / variables may be useful for modeling in the future?
-  - It is hot in Arizona. I wonder if there is a relationship between temp and % made.
-  - Total time doing the drill.
-  - Heart rate? Could that be pulled in..?
-  - Time of day
+## Using the app
 
-### List of resources that are not managed via Terraform.
+1. Attempt 10 shots from 11 locations and submit the results via the Google Form.
 
-- aws api gateway (must output the endpoint)
-- aws simple email service
-- google form creation (must output the endpoint)
-- google form trigger
-- google apps script creation
+    ![half court shooting locations](img/half_court.png)
+
+2. Form submission triggers the collection app flow.
+
+ - TODO: create a diagram of a form submission 
+ - Google Form Submit => Google Trigger => Google Apps Script HTTP POST (node.js) => Amazon API Gateway => AWS Lambda (python)
