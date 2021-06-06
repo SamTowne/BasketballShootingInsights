@@ -19,9 +19,14 @@ Analytics receives the processed data and provides some pretty visualizations.
 
 ## Using the app
 
-1. Attempt 10 shots from 11 locations and submit the results via the Google Form.
+1. Attempt 4 shots from each of 11 spots behind the three point line. Enter the number of shots made from each spot. Submit the results via the Google Form. The Google form has 12 short answer questions. The first 11 questions are to record the number of shots made from each spot. The last question is to record the current temperature. The temperature is in Farenheit.
 
-    ![half court shooting locations](img/half_court.png)
+ - Form data validation
+   - questions 1-11: integer between 0-4
+   - question 12: integer between -150 and 150
+ - Shooting locations
+
+      ![half court shooting locations](img/half_court.png)
 
 2. Form submission triggers the collection app flow.
 
