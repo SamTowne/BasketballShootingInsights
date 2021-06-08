@@ -74,3 +74,13 @@ module "api_inbound_lambda" {
 }
 EOT
 }
+
+module "api_gateway" {
+  source            = "./modules/api_gateway"
+  name              = "shooting_insights"
+  protocol_type     = "HTTP"
+  route_key         = "POST /si/submit"
+  target            = module.api_inbound_lambda.output_arn
+  lambda_arn        = module.api_inbound_lambda.output_arn
+  lambda_invoke_arn = module.api_inbound_lambda.output_invoke_arn
+}

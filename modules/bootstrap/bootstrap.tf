@@ -69,7 +69,7 @@ resource "aws_s3_bucket" "s3_data_bucket" {
       ],
       "Principal": {
         "AWS": [
-          "arn:aws:iam::272773485930:role/shooting_insights_lambda_role"
+          "arn:aws:iam::272773485930:role/api_inbound_lambda_role"
         ]
       }
     }
