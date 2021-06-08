@@ -21,6 +21,13 @@ provider "aws" {
  }
 }
 
+# Credentials exported into desktop shell
+provider "google" {
+  project = "shooting_insights"
+  region  = "us-west1"
+  zone    = "us-west1-b"
+}
+
 ## Build an S3 bucket and DynamoDB for Terraform state and locking
 module "bootstrap" {
   source                  = "./modules/bootstrap"
@@ -30,14 +37,14 @@ module "bootstrap" {
   dynamo_db_table_name    = "shooting-insights-dynamodb-terraform-locking"
 }
 
-module "lambda" {
+module "api_inbound_lambda" {
   source              = "./modules/lambda"
-  role                = "shooting_insights_lambda_role"
-  filename            = module.lambda.output_path
-  function_name       = "shooting_insights"
-  handler             = "shooting_insights.lambda_handler"
+  role                = "api_inbound_lambda_role"
+  filename            = module.api_inbound_lambda.output_path
+  function_name       = "api_inbound"
+  handler             = "api_inbound.lambda_handler"
   runtime             = "python3.8"
-  source_code_hash    = filebase64sha256(module.lambda.output_path)
+  source_code_hash    = filebase64sha256(module.api_inbound_lambda.output_path)
 
   lambda_policy_json  = <<EOT
 {
