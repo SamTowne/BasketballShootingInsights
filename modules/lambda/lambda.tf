@@ -51,3 +51,11 @@ output "source_file" {
 output "output_path" {
   value = data.archive_file.lambda.output_path
 }
+
+output "output_arn" {
+  value = aws_lambda_function.lambda.arn
+}
+
+output "output_invoke_arn" {
+  value = aws_lambda_function.lambda.invoke_arn
+}
