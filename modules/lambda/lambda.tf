@@ -40,8 +40,8 @@ resource "aws_lambda_function" "lambda" {
 
 data "archive_file" "lambda" {
   type = "zip"
-  source_file = "./modules/lambda/${var.function_name}.py"
-  output_path = "./modules/lambda/${var.function_name}_payload.zip"
+  source_file = "./modules/lambda/${var.function_name}/${var.function_name}.py"
+  output_path = "./modules/lambda/${var.function_name}/${var.function_name}_payload.zip"
 }
 
 output "source_file" {
