@@ -83,12 +83,13 @@ module "api_gateway" {
   target        = module.api_inbound_lambda.output_arn
 }
 
-resource "aws_apigatewayv2_integration" "api_inbound_lambda_integration" {
-  api_id                    = module.api_gateway.api_id_output
-  integration_type          = "HTTP_PROXY"
-  connection_type           = "INTERNET"
-  content_handling_strategy = "CONVERT_TO_TEXT"
-  description               = "Integrate api gateway with lambda function"
-  integration_method        = "POST"
-  integration_uri           = module.api_inbound_lambda.output_invoke_arn
-}
+# resource "aws_apigatewayv2_integration" "api_inbound_lambda_integration" {
+#   api_id                    = module.api_gateway.api_id_output
+#   integration_type          = "AWS_PROXY"
+#   connection_type           = "INTERNET"
+#   content_handling_strategy = "CONVERT_TO_TEXT"
+#   description               = "Integrate api gateway with lambda function"
+#   integration_method        = "POST"
+#   integration_uri           = module.api_inbound_lambda.output_invoke_arn
+#   passthrough_behavior      = "WHEN_NO_MATCH"
+# }
