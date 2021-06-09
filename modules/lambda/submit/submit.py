@@ -4,6 +4,8 @@ import urllib.parse
 import uuid
 from botocore.exceptions import ClientError
 
+### Handles post requests to API Gateway, stores data as json object in s3
+
 def lambda_handler(event, context):
     
     ### Loads json, sets a unique name (uuid4), and dumps the file into an s3 bucket ###
