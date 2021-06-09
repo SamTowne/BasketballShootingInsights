@@ -1,6 +1,6 @@
 # Build an S3 bucket to store TF state
 resource "aws_s3_bucket" "state_bucket" {
-  bucket = var.s3_tfstate_bucket
+  bucket = var.tfstate_bucket
 
   # Tells AWS to encrypt the S3 bucket at rest by default
   server_side_encryption_configuration {
@@ -19,7 +19,7 @@ resource "aws_s3_bucket" "state_bucket" {
 
 # Build a DynamoDB to use for terraform state locking
 resource "aws_dynamodb_table" "tf_lock_state" {
-  name = var.dynamo_db_table_name
+  name = var.tf_lock_dynamo_table
 
   # Pay per request is cheaper for low-i/o applications, like our TF lock state
   billing_mode = "PAY_PER_REQUEST"
@@ -37,7 +37,7 @@ resource "aws_dynamodb_table" "tf_lock_state" {
 
 # Build an AWS S3 bucket for logging
 resource "aws_s3_bucket" "s3_logging_bucket" {
-  bucket = var.s3_logging_bucket_name
+  bucket = var.logging_bucket
   acl    = "private"
 
   server_side_encryption_configuration {
@@ -51,7 +51,7 @@ resource "aws_s3_bucket" "s3_logging_bucket" {
 
 # Build an AWS S3 bucket for storing lambda data
 resource "aws_s3_bucket" "s3_data_bucket" {
-  bucket = var.s3_data_bucket_name
+  bucket = var.data_bucket
   acl    = "private"
   policy = <<EOT
 {
@@ -69,7 +69,7 @@ resource "aws_s3_bucket" "s3_data_bucket" {
       ],
       "Principal": {
         "AWS": [
-          "arn:aws:iam::272773485930:role/api_inbound_lambda_role"
+          "arn:aws:iam::272773485930:role/submit_lambda_role"
         ]
       }
     }
@@ -87,15 +87,15 @@ resource "aws_s3_bucket" "s3_data_bucket" {
 }
 
 # Output name of S3 logging bucket back to main.tf
-output "s3_logging_bucket_id" {
+output "logging_bucket_id" {
   value = aws_s3_bucket.s3_logging_bucket.id
 }
-output "s3_logging_bucket" {
+output "logging_bucket" {
   value = aws_s3_bucket.s3_logging_bucket.bucket
 }
-output "s3_data_bucket" {
+output "data_bucket" {
   value = aws_s3_bucket.s3_data_bucket.bucket
 }
-output "s3_data_bucket_arn" {
+output "data_bucket_arn" {
   value = aws_s3_bucket.s3_data_bucket.arn
 }

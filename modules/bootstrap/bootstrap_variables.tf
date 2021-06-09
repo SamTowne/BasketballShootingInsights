@@ -1,16 +1,16 @@
 # Terraform bootstrap variables
-variable "s3_tfstate_bucket" {
+variable "tfstate_bucket" {
   description = "Name of the S3 bucket used for Terraform state storage"
 }
 
-variable "s3_logging_bucket_name" {
+variable "logging_bucket" {
   description = "Name of S3 bucket to use for access logging"
 }
 
-variable "s3_data_bucket_name" {
+variable "data_bucket" {
   description = "Name of S3 bucket to use for data"
 }
 
-variable "dynamo_db_table_name" {
+variable "tf_lock_dynamo_table" {
   description = "Name of DynamoDB table used for Terraform locking"
 }

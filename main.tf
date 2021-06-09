@@ -31,20 +31,20 @@ provider "google" {
 ## Build an S3 bucket and DynamoDB for Terraform state and locking
 module "bootstrap" {
   source                  = "./modules/bootstrap"
-  s3_tfstate_bucket       = "shooting-insights-terraform-tfstate"
-  s3_logging_bucket_name  = "shooting-insights-logging-bucket"
-  s3_data_bucket_name     = "shooting-insights-data"
-  dynamo_db_table_name    = "shooting-insights-dynamodb-terraform-locking"
+  tfstate_bucket          = "shooting-insights-terraform-tfstate"
+  logging_bucket          = "shooting-insights-logging-bucket"
+  data_bucket             = "shooting-insights-data"
+  tf_lock_dynamo_table    = "shooting-insights-dynamodb-terraform-locking"
 }
 
-module "api_inbound_lambda" {
+module "submit_lambda" {
   source              = "./modules/lambda"
-  role                = "api_inbound_lambda_role"
-  filename            = module.api_inbound_lambda.output_path
-  function_name       = "api_inbound"
-  handler             = "api_inbound.lambda_handler"
+  role                = "submit_lambda_role"
+  filename            = module.submit_lambda.output_path
+  function_name       = "submit"
+  handler             = "submit.lambda_handler"
   runtime             = "python3.8"
-  source_code_hash    = filebase64sha256(module.api_inbound_lambda.output_path)
+  source_code_hash    = filebase64sha256(module.submit_lambda.output_path)
 
   lambda_policy_json  = <<EOT
 {
@@ -67,7 +67,7 @@ module "api_inbound_lambda" {
               "s3:PutObject"
           ],
           "Resource": [
-              "${module.bootstrap.s3_data_bucket_arn}"
+              "${module.bootstrap.data_bucket_arn}"
           ]
       }      
   ]
@@ -80,7 +80,13 @@ module "api_gateway" {
   name              = "shooting_insights"
   protocol_type     = "HTTP"
   route_key         = "POST /si/submit"
-  target            = module.api_inbound_lambda.output_arn
-  lambda_arn        = module.api_inbound_lambda.output_arn
-  lambda_invoke_arn = module.api_inbound_lambda.output_invoke_arn
+  target            = module.submit_lambda.output_arn
+  lambda_arn        = module.submit_lambda.output_arn
+  lambda_invoke_arn = module.submit_lambda.output_invoke_arn
 }
+
+/*
+DDL of 11 spots, temp, date, time
+
+spot_1 string, spot_2 string, spot_3 string, spot4 string, spot5 string, spot6 string, spot7 string, spot8 string, spot9 string, spot10 string, spot11 string, temp string, date string, time string
+*/
