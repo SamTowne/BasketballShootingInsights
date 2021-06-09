@@ -84,3 +84,9 @@ module "api_gateway" {
   lambda_arn        = module.submit_lambda.output_arn
   lambda_invoke_arn = module.submit_lambda.output_invoke_arn
 }
+
+/*
+DDL of 11 spots, temp, date, time
+
+spot_1 string, spot_2 string, spot_3 string, spot4 string, spot5 string, spot6 string, spot7 string, spot8 string, spot9 string, spot10 string, spot11 string, temp string, date string, time string
+*/
