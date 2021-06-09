@@ -1,5 +1,5 @@
 //TODO: output api gateway endpoint and insert here so it is dynamic at app standup
-var post_url = "https://whmhl1hgge.execute-api.us-east-1.amazonaws.com/si/submit"
+var post_url = "https://d7c1ezk0rk.execute-api.us-east-1.amazonaws.com/si/submit"
 
 function onFormSubmit(e) {
 
