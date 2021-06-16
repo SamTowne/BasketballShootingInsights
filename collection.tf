@@ -11,19 +11,19 @@ module "api_gateway" {
   name              = "shooting_insights"
   protocol_type     = "HTTP"
   route_key         = "POST /si/submit"
-  target            = module.submit_lambda.output_arn
-  lambda_arn        = module.submit_lambda.output_arn
-  lambda_invoke_arn = module.submit_lambda.output_invoke_arn
+  target            = module.collection_lambda.output_arn
+  lambda_arn        = module.collection_lambda.output_arn
+  lambda_invoke_arn = module.collection_lambda.output_invoke_arn
 }
 
-module "submit_lambda" {
+module "collection_lambda" {
   source              = "./modules/lambda"
-  role                = "submit_lambda_role"
-  filename            = module.submit_lambda.output_path
-  function_name       = "submit"
-  handler             = "submit.lambda_handler"
+  role                = "collection_lambda_role"
+  filename            = module.collection_lambda.output_path
+  function_name       = "collection"
+  handler             = "collection.lambda_handler"
   runtime             = "python3.8"
-  source_code_hash    = filebase64sha256(module.submit_lambda.output_path)
+  source_code_hash    = filebase64sha256(module.collection_lambda.output_path)
 
   lambda_policy_json  = <<EOT
 {
