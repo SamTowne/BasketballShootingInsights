@@ -12,10 +12,11 @@ Bootstrap builds the app. It creates cloud services and tells them to play nicel
 Collection feeds data into the app. The entry point is a Google form. The user inputs the results of their shooting drill. This includes the shots made from each location and the current temperature. Submission of the form kicks off a serverless app flow to store the data in AWS S3 for further processing.
 
 ### 3. Processing
-The collection step results in raw json objects stored in s3. Each POST to the api gateway results in an individual json object being stored. Processing runs queries against these json files.
+The collection step results in raw json objects stored in s3. Each POST to the api gateway results in an individual json object being stored. Processing runs queries against these json files. When complete, it triggers the response step.
 
-### 4. Analytics
-TBD. 
+### 4. Response
+The response step receives the processed data, formats it into an email, and sends it to the user.
+
 
 ## Using the app
 
