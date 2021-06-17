@@ -69,7 +69,7 @@ resource "aws_s3_bucket" "s3_data_bucket" {
       ],
       "Principal": {
         "AWS": [
-          "arn:aws:iam::272773485930:role/submit_lambda_role"
+          "arn:aws:iam::272773485930:role/collection_lambda_role"
         ]
       }
     }
