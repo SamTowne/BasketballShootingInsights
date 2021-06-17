@@ -16,7 +16,7 @@ def lambda_handler(event, context):
     
     file_name = str(uuid.uuid4()) + ".json"
     
-    s3_path = "collection/" + file_name
+    s3_path = "collection/3point/" + file_name
     
     s3 = boto3.resource("s3")
     
