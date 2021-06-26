@@ -2,19 +2,24 @@
 ### Processing ###
 ##################
 
+### Athena Results Bucket ###
+
+module "athena_results_bucket" {
+  source = "./modules/athena/results_bucket"
+  athena_results_bucket = "shooting-insights-athena-results"
+}
+
+# Hello World Db
+
 module "athena_db_hello_world" {
   source = "./modules/athena/database"
   athena_db_name = "hello_world"
-  athena_bucket_name = "shooting-insights-data"
+  athena_bucket_name = module.athena_results_bucket.output_athena_results_bucket_name
   athena_workgroup_name = "hello_world"
 }
 
-#TODO: 
-# - add permissions to lambda role so it can call athena
-# - run a create table hello world
-# - run a query hello world
-
-module "athena_query_hello_world" {
+# Hello World Table Query
+module "athena_query_hello_world_create_table" {
   source = "./modules/athena/query"
   athena_query_name = "hello_world"
   athena_db_name = module.athena_db_hello_world.athena_db_name_output
