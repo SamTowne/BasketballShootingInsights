@@ -23,7 +23,6 @@ def lambda_handler(event, context):
     s3.Bucket(bucket_name).put_object(Key=s3_path, Body=json.dumps(body), ContentType="application/json", )
     
     ### Shots made and shooting percentage ###
-    # TODO move this functionality into individual functions.. with try catches
     spot_1 = body["spot_1"]
     spot_2 = body["spot_2"]
     spot_3 = body["spot_3"]
@@ -42,26 +41,18 @@ def lambda_handler(event, context):
     shots_attempted = 44
     
     shooting_percentage_long = 100 * float(shots_made)/float(shots_attempted)
-    shooting_percentage = round(shooting_percentage_long,3)
+    shooting_percentage = round(shooting_percentage_long,2)
     
     ### simple email service ###
     
-    # This address must be verified with Amazon SES.
     SENDER = "Sender Name <chmod777recursively@gmail.com>"
-    
-    # Replace recipient@example.com with a "To" address. If your account 
-    # is still in the sandbox, this address must be verified.
     RECIPIENT = "chmod777recursively@gmail.com"
-    
-    # If necessary, replace us-west-2 with the AWS Region you're using for Amazon SES.
     AWS_REGION = "us-east-1"
-    
-    # The subject line for the email.
     SUBJECT = "3 Point Shooting Drill"
-    
+
     # The email body for recipients with non-HTML email clients.
-    BODY_TEXT = ""# "Dear Samuel," + "\r\n" + "Here are your shooting results:" +"\r\n"+ "Shots Made = " + shots_made + "\r\n" + "Shooting Percentage = " + shooting_percentage
-                
+    BODY_TEXT = "Dear Samuel, You made " + shots_made + "shots out of " + shots_attempted + "." + "\r\n" + "The data from this shooting drill was stored to an AWS S3 Bucket:" + "\r\n" + body
+
     # The HTML body of the email.
     BODY_HTML = """<html>
     <head></head>
@@ -74,7 +65,7 @@ def lambda_handler(event, context):
       <p>Your shooting percentage was <b>{shot_perc}%</b>.</p>
       <p>The temperature was <b>{temperature}&deg;F</b>.</p>
       <br>
-      <p>The data from this shooting drill was stored to an AWS S3 Bucket because why not:</p>
+      <p>The data from this shooting drill was stored to an AWS S3 Bucket:</p>
       <p>{json_body}</p>
       <h4>A serverless app by Sam Towne ¯\_(ツ)_/¯</h4>
     </body>
@@ -87,9 +78,7 @@ def lambda_handler(event, context):
     # Create a new SES resource and specify a region.
     client = boto3.client('ses',region_name=AWS_REGION)
     
-    # Try to send the email.
-    # try:
-        #Provide the contents of the email.
+    # Send the email
     response = client.send_email(
         Destination={
             'ToAddresses': [
@@ -113,13 +102,7 @@ def lambda_handler(event, context):
             },
         },
         Source=SENDER,
-    )# TODO: why does the error handling cause this to crash?
-    # Display an error if something goes wrong.	
-    # except ClientError as e:
-    #     print(e.response['Error']['Message'])
-    # else:
-    #     print("Email sent! Message ID:"),
-    #     print(response['MessageId'])    
+    )
         
     return {
         'statusCode': 200,
