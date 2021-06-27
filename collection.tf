@@ -36,7 +36,8 @@ module "collection_lambda" {
               "logs:CreateLogStream",
               "logs:PutLogEvents",
               "ses:SendEmail",
-              "ses:SendRawEmail"
+              "ses:SendRawEmail",
+              "lambda:InvokeFunction"
           ],
           "Resource": "*"
       },
@@ -48,7 +49,7 @@ module "collection_lambda" {
           "Resource": [
               "${module.bootstrap.data_bucket_arn}"
           ]
-      }      
+      }
   ]
 }
 EOT

@@ -35,6 +35,10 @@ resource "aws_s3_bucket" "athena_results_bucket" {
   }
 }
 
-output "output_athena_results_bucket_name" {
+output "athena_results_bucket_name" {
   value = aws_s3_bucket.athena_results_bucket.bucket
+}
+
+output "athena_results_bucket_arn" {
+  value = aws_s3_bucket.athena_results_bucket.arn
 }

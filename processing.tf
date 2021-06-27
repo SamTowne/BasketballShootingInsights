@@ -14,7 +14,7 @@ module "athena_results_bucket" {
 module "athena_db_hello_world" {
   source = "./modules/athena/database"
   athena_db_name = "hello_world"
-  athena_bucket_name = module.athena_results_bucket.output_athena_results_bucket_name
+  athena_bucket_name = module.athena_results_bucket.athena_results_bucket_name
   athena_workgroup_name = "hello_world"
 }
 
@@ -46,4 +46,44 @@ WITH SERDEPROPERTIES (
          'serialization.format' = '1' ) LOCATION 's3://shooting-insights-data/test/' TBLPROPERTIES ('has_encrypted_data'='false');
 
   EOT
+}
+
+module "processing_lambda" {
+  source              = "./modules/lambda"
+  role                = "processing_lambda_role"
+  filename            = module.processing_lambda.output_path
+  function_name       = "processing"
+  handler             = "processing.lambda_handler"
+  runtime             = "python3.8"
+  source_code_hash    = filebase64sha256(module.processing_lambda.output_path)
+
+  lambda_policy_json  = <<EOT
+{
+  "Version": "2012-10-17",
+  "Statement": [
+      {
+          "Effect": "Allow",
+          "Action": [
+              "logs:CreateLogGroup",
+              "logs:CreateLogStream",
+              "logs:PutLogEvents",
+              "ses:SendEmail",
+              "ses:SendRawEmail"
+          ],
+          "Resource": "*"
+      },
+      {
+          "Effect": "Allow",
+          "Action": [
+              "s3:PutObject",
+              "s3:GetObject"
+          ],
+          "Resource": [
+              "${module.bootstrap.data_bucket_arn}",
+              "${module.athena_results_bucket.athena_results_bucket_arn}"
+          ]
+      }
+  ]
+}
+EOT
 }
