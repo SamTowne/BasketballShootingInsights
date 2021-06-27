@@ -43,7 +43,7 @@ module "athena_create_table_query" {
 ) 
 ROW FORMAT SERDE 'org.openx.data.jsonserde.JsonSerDe'
 WITH SERDEPROPERTIES (
-         'serialization.format' = '1' ) LOCATION 's3://shooting-insights-data/test/' TBLPROPERTIES ('has_encrypted_data'='false');
+         'serialization.format' = '1' ) LOCATION 's3://shooting-insights-data/collection/3point/' TBLPROPERTIES ('has_encrypted_data'='false');
 
   EOT
 }
@@ -69,15 +69,22 @@ module "processing_lambda" {
               "logs:PutLogEvents",
               "ses:SendEmail",
               "ses:SendRawEmail",
-              "athena:StartQueryExecution"
+              "athena:StartQueryExecution",
+              "glue:GetTable",
+              "glue:GetDatabase"
           ],
           "Resource": "*"
       },
       {
           "Effect": "Allow",
           "Action": [
+              "s3:GetBucketLocation",
+              "s3:GetObject",
+              "s3:ListBucket",
+              "s3:ListBucketMultipartUploads",
+              "s3:AbortMultipartUpload",
               "s3:PutObject",
-              "s3:GetObject"
+              "s3:ListMultipartUploadParts"
           ],
           "Resource": [
               "${module.bootstrap.data_bucket_arn}",
