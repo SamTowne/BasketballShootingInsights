@@ -3,14 +3,13 @@ import boto3
 
 def lambda_handler(event, context):
 
-    # collection lambda event body contains the bucket and path to file
-    bucket = event['bucket']
-    path = event['path']
-
-    #TODO: retrieve the file and confirm that this works
-    body = json.loads("{}".format(event['body']))
+    ### Retrieve the shooting drill file ###
+    s3 = boto3.resource("s3")
+    content_object = s3.Object(event['bucket'],event['path'])
+    file_content = content_object.get()['Body'].read().decode('utf-8')
+    body = json.loads(file_content)
     
-    ### Shots made and shooting percentage ###
+    ### Calculate shots made and shooting percentage ###
     spot_1 = body["spot_1"]
     spot_2 = body["spot_2"]
     spot_3 = body["spot_3"]
@@ -30,8 +29,47 @@ def lambda_handler(event, context):
     
     shooting_percentage_long = 100 * float(shots_made)/float(shots_attempted)
     shooting_percentage = round(shooting_percentage_long,2)
-    
-    ### simple email service ###
+
+    ### Athena
+
+    client = boto3.client('athena')
+
+    params = {
+    'region': 'us-east-1',
+    'database': 'shooting_insights',
+    'bucket': 'shooting-insights-athena-results',
+    'total_made_each_spot_query': 
+    """
+    SELECT
+        count(spot_1),
+        count(spot_1) * 44,
+        sum(spot_1),
+        sum(spot_2),
+        sum(spot_3),
+        sum(spot_4),
+        sum(spot_5),
+        sum(spot_6),
+        sum(spot_7),
+        sum(spot_8),
+        sum(spot_9),
+        sum(spot_10),
+        sum(spot_11)
+        from shooting_insights;
+    """
+    }
+
+    total_each_spot_response = client.start_query_execution(
+        QueryString=params["total_made_each_spot_query"],
+        QueryExecutionContext={
+            'Database': params['database']
+        },
+        ResultConfiguration={
+            'OutputLocation': 's3://' + params['bucket'] + '/total_made_each_spot_query/'
+        },
+        WorkGroup='shooting_insights'
+    )
+
+    ### Send an email using Simple Email Service ###
     
     SENDER = "Sender Name <chmod777recursively@gmail.com>"
     RECIPIENT = "chmod777recursively@gmail.com"
@@ -39,7 +77,7 @@ def lambda_handler(event, context):
     SUBJECT = "3 Point Shooting Drill"
 
     # The email body for recipients with non-HTML email clients.
-    BODY_TEXT = "Dear Samuel, You made " + shots_made + "shots out of " + shots_attempted + "." + "\r\n" + "The data from this shooting drill was stored to an AWS S3 Bucket:" + "\r\n" + body
+    BODY_TEXT = "Dear Samuel, You made " + str(shots_made) + "shots out of " + str(shots_attempted) + "." + "\r\n" + "The data from this shooting drill was stored to an AWS S3 Bucket."
 
     # The HTML body of the email.
     BODY_HTML = """<html>
@@ -94,5 +132,5 @@ def lambda_handler(event, context):
 
     return {
         'statusCode': 200,
-        'body': json.dumps(body)
+        'body': 'hi'
     }
