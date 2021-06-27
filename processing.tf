@@ -9,23 +9,23 @@ module "athena_results_bucket" {
   athena_results_bucket = "shooting-insights-athena-results"
 }
 
-# Hello World Db
+### Shooting Insights Athena Database ###
 
-module "athena_db_hello_world" {
+module "athena_db" {
   source = "./modules/athena/database"
-  athena_db_name = "hello_world"
+  athena_db_name = "shooting_insights"
   athena_bucket_name = module.athena_results_bucket.athena_results_bucket_name
-  athena_workgroup_name = "hello_world"
+  athena_workgroup_name = "shooting_insights"
 }
 
-# Hello World Table Query
-module "athena_query_hello_world_create_table" {
+### Shooting Insights Create Table Query ###
+module "athena_create_table_query" {
   source = "./modules/athena/query"
-  athena_query_name = "hello_world"
-  athena_db_name = module.athena_db_hello_world.athena_db_name_output
-  athena_workgroup_name = module.athena_db_hello_world.athena_workgroup_output
+  athena_query_name = "shooting_insights_table"
+  athena_db_name = module.athena_db.athena_db_name_output
+  athena_workgroup_name = module.athena_db.athena_workgroup_output
   athena_query = <<EOT
-  CREATE EXTERNAL TABLE IF NOT EXISTS ${module.athena_db_hello_world.athena_db_name_output}.hello_world (
+  CREATE EXTERNAL TABLE IF NOT EXISTS ${module.athena_db.athena_db_name_output}.shooting_insights (
          `spot_1` int,
          `spot_2` int,
          `spot_3` int,
@@ -68,7 +68,8 @@ module "processing_lambda" {
               "logs:CreateLogStream",
               "logs:PutLogEvents",
               "ses:SendEmail",
-              "ses:SendRawEmail"
+              "ses:SendRawEmail",
+              "athena:StartQueryExecution"
           ],
           "Resource": "*"
       },
@@ -80,7 +81,9 @@ module "processing_lambda" {
           ],
           "Resource": [
               "${module.bootstrap.data_bucket_arn}",
-              "${module.athena_results_bucket.athena_results_bucket_arn}"
+              "${module.bootstrap.data_bucket_arn}/*",
+              "${module.athena_results_bucket.athena_results_bucket_arn}",
+              "${module.athena_results_bucket.athena_results_bucket_arn}/*"
           ]
       }
   ]
