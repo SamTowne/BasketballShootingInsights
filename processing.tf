@@ -7,6 +7,7 @@
 module "athena_results_bucket" {
   source = "./modules/athena/results_bucket"
   athena_results_bucket = "shooting-insights-athena-results"
+  response_lambda_arn = module.response_lambda.output_arn
 }
 
 ### Shooting Insights Athena Database ###
