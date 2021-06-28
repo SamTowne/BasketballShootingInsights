@@ -18,7 +18,8 @@ module "response_lambda" {
               "logs:CreateLogStream",
               "logs:PutLogEvents",
               "ses:SendEmail",
-              "ses:SendRawEmail"
+              "ses:SendRawEmail",
+              "athena:GetQueryResults"
           ],
           "Resource": "*"
       },
@@ -28,6 +29,24 @@ module "response_lambda" {
           "lambda:InvokeFunction"
         ],
         "Resource": "${module.athena_results_bucket.athena_results_bucket_arn}"
+      },
+      {
+          "Effect": "Allow",
+          "Action": [
+              "s3:GetBucketLocation",
+              "s3:GetObject",
+              "s3:ListBucket",
+              "s3:ListBucketMultipartUploads",
+              "s3:AbortMultipartUpload",
+              "s3:PutObject",
+              "s3:ListMultipartUploadParts"
+          ],
+          "Resource": [
+              "${module.bootstrap.data_bucket_arn}",
+              "${module.bootstrap.data_bucket_arn}/*",
+              "${module.athena_results_bucket.athena_results_bucket_arn}",
+              "${module.athena_results_bucket.athena_results_bucket_arn}/*"
+          ]
       }
   ]
 }

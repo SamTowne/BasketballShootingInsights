@@ -68,67 +68,16 @@ def lambda_handler(event, context):
         },
         WorkGroup='shooting_insights'
     )
-    
-    # ### Send an email using Simple Email Service ###
-    
-    # SENDER = "Sender Name <chmod777recursively@gmail.com>"
-    # RECIPIENT = "chmod777recursively@gmail.com"
-    # AWS_REGION = "us-east-1"
-    # SUBJECT = "3 Point Shooting Drill"
 
-    # # The email body for recipients with non-HTML email clients.
-    # BODY_TEXT = "Dear Samuel, You made " + str(shots_made) + "shots out of " + str(shots_attempted) + "." + "\r\n" + "The data from this shooting drill was stored to an AWS S3 Bucket."
+    # Create new json file with Athena execution IDs, shots made, shots attempted, shooting percentage, and the temperature 
+    path_split = event['path'].split('/')
+    file_name = path_split[len(path_split) - 1]
+    processed_file_content = json.dumps({'total_made_each_spot_athena_execution_id': total_each_spot_response['QueryExecutionId'],'shots_made': shots_made,'shots_attempted': shots_attempted,'shooting_percentage': shooting_percentage, 'temp': temp})
+    s3.Object('shooting-insights-data', 'processed/3point/' + file_name ).put(Body=processed_file_content,ContentType="application/json")
 
-    # # The HTML body of the email.
-    # BODY_HTML = """<html>
-    # <head></head>
-    # <body>
-    #   <h1>Shooting Insights</h1>
-    #   <br>
-    #   <p>Dear Samuel,</p>
-    #   <br>
-    #   <p>You made <b>{shots} shots</b> out of {attempted}.</p>
-    #   <p>Your shooting percentage was <b>{shot_perc}%</b>.</p>
-    #   <p>The temperature was <b>{temperature}&deg;F</b>.</p>
-    #   <br>
-    #   <p>The data from this shooting drill was stored to an AWS S3 Bucket:</p>
-    #   <p>{json_body}</p>
-    #   <h4>A serverless app by Sam Towne ¯\_(ツ)_/¯</h4>
-    # </body>
-    # </html>
-    #             """.format(shots=shots_made,attempted=shots_attempted,shot_perc=shooting_percentage,temperature=temp,json_body=body)            
+    # Make a temp copy
+    s3.Object('shooting-insights-data', 'temp/3point/' + file_name).copy_from(CopySource='shooting-insights-data/processed/3point/' + file_name)
     
-    # # The character encoding for the email.
-    # CHARSET = "UTF-8"
-    
-    # # Create a new SES resource and specify a region.
-    # client = boto3.client('ses',region_name=AWS_REGION)
-    
-    # # Send the email
-    # response = client.send_email(
-    #     Destination={
-    #         'ToAddresses': [
-    #             RECIPIENT,
-    #         ],
-    #     },
-    #     Message={
-    #         'Body': {
-    #             'Html': {
-    #                 'Charset': CHARSET,
-    #                 'Data': BODY_HTML,
-    #             },
-    #             'Text': {
-    #                 'Charset': CHARSET,
-    #                 'Data': BODY_TEXT,
-    #             },
-    #         },
-    #         'Subject': {
-    #             'Charset': CHARSET,
-    #             'Data': SUBJECT,
-    #         },
-    #     },
-    #     Source=SENDER,
-    # )
 
     return {
         'statusCode': 200,
