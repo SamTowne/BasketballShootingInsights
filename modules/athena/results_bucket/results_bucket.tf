@@ -18,7 +18,8 @@ resource "aws_s3_bucket" "athena_results_bucket" {
       ],
       "Principal": {
         "AWS": [
-          "arn:aws:iam::272773485930:role/collection_lambda_role"
+          "arn:aws:iam::272773485930:role/collection_lambda_role",
+          "arn:aws:iam::272773485930:role/processing_lambda_role"
         ]
       }
     }
@@ -35,6 +36,17 @@ resource "aws_s3_bucket" "athena_results_bucket" {
   }
 }
 
+# Allow S3 Trigger of the Response Lambda
+
+resource "aws_lambda_permission" "allow_bucket" {
+  statement_id  = "AllowExecutionFromS3Bucket"
+  action        = "lambda:InvokeFunction"
+  function_name = "arn:aws:lambda:us-east-1:272773485930:function:response"
+  principal     = "s3.amazonaws.com"
+  source_arn    = aws_s3_bucket.athena_results_bucket.arn
+}
+
+# Trigger for response to be ignited once all processing is complete
 resource "aws_s3_bucket_notification" "bucket_notification" {
   bucket = aws_s3_bucket.athena_results_bucket.id
 
@@ -42,7 +54,10 @@ resource "aws_s3_bucket_notification" "bucket_notification" {
     lambda_function_arn = "arn:aws:lambda:us-east-1:272773485930:function:response"
     events              = ["s3:ObjectCreated:*"]
     filter_prefix       = "total_made_each_spot_query/"
+    filter_suffix       = ".csv"
   }
+
+  depends_on = [aws_lambda_permission.allow_bucket]
 }
 
 output "athena_results_bucket_name" {

@@ -21,6 +21,13 @@ module "response_lambda" {
               "ses:SendRawEmail"
           ],
           "Resource": "*"
+      },
+      {
+        "Effect": "Allow",
+        "Action": [
+          "lambda:InvokeFunction"
+        ],
+        "Resource": "${module.athena_results_bucket.athena_results_bucket_arn}"
       }
   ]
 }
