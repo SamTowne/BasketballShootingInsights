@@ -30,7 +30,7 @@ resource "aws_iam_role_policy_attachment" "lambda_policy_attachment" {
 }
 
 resource "aws_lambda_function" "lambda" {
-  filename         = var.filename
+  filename         = "collection.py"
   function_name    = var.function_name
   role             = aws_iam_role.lambda_role.arn
   handler          = var.handler
