@@ -14,3 +14,5 @@ variable "data_bucket" {
 variable "tf_lock_dynamo_table" {
   description = "Name of DynamoDB table used for Terraform locking"
 }
+
+variable "athena_results_bucket" { }

@@ -8,6 +8,7 @@ module "bootstrap" {
   tfstate_bucket          = "shooting-insights-terraform-tfstate"
   logging_bucket          = "shooting-insights-logging-bucket"
   data_bucket             = "shooting-insights-data"
+  athena_results_bucket   = "shooting-insights-athena-results"
   tf_lock_dynamo_table    = "shooting-insights-dynamodb-terraform-locking"
 }
 
@@ -48,4 +49,46 @@ provider "google" {
   project = "shooting_insights"
   region  = "us-west1"
   zone    = "us-west1-b"
+}
+
+##################
+### Collection ###
+##################
+
+# An Api Gateway receives Google Form post data
+# A lambda function is triggered
+# The lambda function stores the form data to an S3 bucket
+
+module "collection" {
+  source              = "./modules/collection"
+  data_bucket_arn     = module.bootstrap.data_bucket_arn
+}
+
+##################
+### Processing ###
+##################
+
+module "processing" {
+  source              = "./modules/processing"
+  data_bucket_arn     = module.bootstrap.data_bucket_arn
+}
+
+################
+### Response ###
+################
+
+module "response" {
+  source                    = "./modules/response"
+  data_bucket_arn           = module.bootstrap.data_bucket_arn
+  athena_results_bucket_arn = module.processing.athena_results_bucket_arn
+}
+
+###############
+### Cleanup ###
+###############
+
+module "cleanup" {
+  source = "./modules/cleanup"
+  data_bucket_arn           = module.bootstrap.data_bucket_arn
+  athena_results_bucket_arn = module.processing.athena_results_bucket_arn
 }

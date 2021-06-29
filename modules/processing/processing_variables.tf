@@ -1,0 +1,1 @@
+variable "data_bucket_arn" {}
