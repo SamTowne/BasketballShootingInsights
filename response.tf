@@ -19,6 +19,7 @@ module "response_lambda" {
               "logs:PutLogEvents",
               "ses:SendEmail",
               "ses:SendRawEmail",
+              "lambda:InvokeFunction",
               "athena:GetQueryResults"
           ],
           "Resource": "*"
