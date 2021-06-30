@@ -41,10 +41,12 @@ resource "aws_iam_policy" "lambda_policy" {
               "s3:DeleteObject"
           ],
           "Resource": [
-              "${var.data_bucket_arn}",
-              "${var.data_bucket_arn}/*",
-              "${var.athena_results_bucket_arn}",
-              "${var.athena_results_bucket_arn}/*"
+              "${var.temp_bucket_arn}",
+              "${var.temp_bucket_arn}/*",
+              "${var.athena_bucket_arn}",
+              "${var.athena_bucket_arn}/*",
+              "${var.processing_bucket_arn}",
+              "${var.processing_bucket_arn}/*"
           ]
       }
   ]

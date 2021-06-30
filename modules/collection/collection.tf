@@ -76,7 +76,7 @@ resource "aws_iam_policy" "lambda_policy" {
               "s3:PutObject"
           ],
           "Resource": [
-              "${var.data_bucket_arn}"
+              "*"
           ]
       }
   ]
@@ -98,6 +98,56 @@ resource "aws_lambda_function" "lambda" {
   source_code_hash = filebase64sha256("./modules/collection/collection_payload.zip")
 }
 
+# Build an AWS S3 bucket for Collection Temp
+resource "aws_s3_bucket" "shooting_insights_temp_bucket" {
+  bucket = "shooting-insights-temp"
+  acl    = "private"
+  policy = <<EOT
+{
+  "Id": "SITempBucketPolicy",
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "lambda",
+      "Action": [
+        "s3:*"
+      ],
+      "Effect": "Allow",
+      "Resource": [
+        "arn:aws:s3:::shooting-insights-temp/*"
+      ],
+      "Principal": {
+        "AWS": [
+          "arn:aws:iam::272773485930:role/collection_lambda_role",
+          "arn:aws:iam::272773485930:role/processing_lambda_role",
+          "arn:aws:iam::272773485930:role/response_lambda_role",
+          "arn:aws:iam::272773485930:role/cleanup_lambda_role"
+        ]
+      }
+    }
+  ]
+}
+  EOT
+
+  server_side_encryption_configuration {
+    rule {
+      apply_server_side_encryption_by_default {
+        sse_algorithm = "AES256"
+      }
+    }
+  }
+
+  lifecycle_rule {
+    id = "temp bucket lifecycle"
+    enabled = true
+    abort_incomplete_multipart_upload_days = 1
+    
+    noncurrent_version_expiration {
+      days = 1
+    }
+  }
+}
+
 data "archive_file" "lambda" {
   type = "zip"
   source_file = "./modules/collection/collection.py"
@@ -110,4 +160,8 @@ output "output_arn" {
 
 output "output_invoke_arn" {
   value = aws_lambda_function.lambda.invoke_arn
+}
+
+output "temp_bucket_arn" {
+  value = aws_s3_bucket.shooting_insights_temp_bucket.arn
 }

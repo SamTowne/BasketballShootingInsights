@@ -15,6 +15,20 @@ resource "aws_s3_bucket" "state_bucket" {
   versioning {
     enabled = true
   }
+
+  lifecycle_rule {
+    id = "state bucket lifecycle"
+    enabled = true
+    abort_incomplete_multipart_upload_days = 1
+    noncurrent_version_transition {
+      days = 1
+      storage_class = "INTELLIGENT_TIERING"      
+    }
+
+    transition {
+      storage_class = "INTELLIGENT_TIERING"
+    }
+  }  
 }
 
 # Build a DynamoDB to use for terraform state locking
@@ -31,21 +45,6 @@ resource "aws_dynamodb_table" "tf_lock_state" {
   attribute {
     name = "LockID"
     type = "S"
-  }
-}
-
-
-# Build an AWS S3 bucket for logging
-resource "aws_s3_bucket" "s3_logging_bucket" {
-  bucket = var.logging_bucket
-  acl    = "private"
-
-  server_side_encryption_configuration {
-    rule {
-      apply_server_side_encryption_by_default {
-        sse_algorithm = "AES256"
-      }
-    }
   }
 }
 
@@ -84,15 +83,25 @@ resource "aws_s3_bucket" "s3_data_bucket" {
       }
     }
   }
+
+  lifecycle_rule {
+    id = "data bucket lifecycle"
+    enabled = true
+    abort_incomplete_multipart_upload_days = 1
+    
+    noncurrent_version_expiration {
+      days = 1
+    }
+
+    transition {
+      storage_class = "INTELLIGENT_TIERING"
+    }
+  }
+
 }
 
-# Output name of S3 logging bucket back to main.tf
-output "logging_bucket_id" {
-  value = aws_s3_bucket.s3_logging_bucket.id
-}
-output "logging_bucket" {
-  value = aws_s3_bucket.s3_logging_bucket.bucket
-}
+# Output name of data bucket back to main.tf
+
 output "data_bucket" {
   value = aws_s3_bucket.s3_data_bucket.bucket
 }

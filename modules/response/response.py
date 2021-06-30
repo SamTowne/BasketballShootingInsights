@@ -5,10 +5,10 @@ def lambda_handler(event, context):
 
     ### Retrieve the shooting drill file ###
     s3 = boto3.resource("s3")
-    shooting_insights_data_bucket = s3.Bucket('shooting-insights-data')
+    temp_bucket = s3.Bucket('shooting-insights-temp')
     processed_temp_file = []
     
-    for obj in shooting_insights_data_bucket.objects.filter(Prefix="temp/3point/"):
+    for obj in temp_bucket.objects.filter(Prefix="processed_temp/3point/"):
       processed_temp_file = json.loads(obj.get()['Body'].read().decode('utf-8'))
 
     shots_made          = str(processed_temp_file['shots_made'])
