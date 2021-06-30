@@ -22,12 +22,7 @@ The response step receives the processed data, formats it into an email, and sen
 
 1. Attempt 4 shots from each of 11 spots behind the three point line. Enter the number of shots made from each spot. Submit the results via the Google Form. The Google form has 12 short answer questions. The first 11 questions are to record the number of shots made from each spot. The last question is to record the current temperature. The temperature is in Farenheit.
 
- - Form data validation
-   - questions 1-11: integer between 0-4
-   - question 12: integer between -150 and 150
- - Shooting locations
-
-      ![half court shooting locations](img/half_court.png)
+      ![half court shooting locations](img/3point.png)
 
 2. Form submission triggers the collection app flow.
 
