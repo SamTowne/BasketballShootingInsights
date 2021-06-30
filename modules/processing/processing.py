@@ -2,10 +2,20 @@ import json
 import boto3
 
 def lambda_handler(event, context):
+    
+    s3 = boto3.resource("s3")
+
+    ### Retrieve the shooting drill file name ###
+    shooting_insights_temp_bucket = s3.Bucket('shooting-insights-temp')
+    json_file_prefix = []
+    
+    for obj in shooting_insights_temp_bucket.objects.filter(Prefix="collection_temp/3point/"):
+      json_file_prefix = json.loads(obj.get()['Body'].read().decode('utf-8'))
+
+    file_prefix = json_file_prefix['file']    
 
     ### Retrieve the shooting drill file ###
-    s3 = boto3.resource("s3")
-    content_object = s3.Object(event['bucket'],event['path'])
+    content_object = s3.Object('shooting-insights-data',"collection/3point/" + file_prefix + ".json")
     file_content = content_object.get()['Body'].read().decode('utf-8')
     body = json.loads(file_content)
     
@@ -70,13 +80,11 @@ def lambda_handler(event, context):
     )
 
     # Create new json file with Athena execution IDs, shots made, shots attempted, shooting percentage, and the temperature 
-    path_split = event['path'].split('/')
-    file_name = path_split[len(path_split) - 1]
     processed_file_content = json.dumps({'total_made_each_spot_athena_execution_id': total_each_spot_response['QueryExecutionId'],'shots_made': shots_made,'shots_attempted': shots_attempted,'shooting_percentage': shooting_percentage, 'temp': temp})
-    s3.Object('shooting-insights-data', 'processed/3point/' + file_name ).put(Body=processed_file_content,ContentType="application/json")
+    s3.Object('shooting-insights-data', 'processed/3point/' + file_prefix + ".json" ).put(Body=processed_file_content,ContentType="application/json")
 
     # Make a temp copy
-    s3.Object('shooting-insights-data', 'temp/3point/' + file_name).copy_from(CopySource='shooting-insights-data/processed/3point/' + file_name)
+    s3.Object('shooting-insights-temp', 'processed_temp/3point/' + file_prefix + ".json").copy_from(CopySource='shooting-insights-data/processed/3point/' + file_prefix + ".json")
     
 
     return {

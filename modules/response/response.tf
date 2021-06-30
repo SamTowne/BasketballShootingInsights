@@ -43,7 +43,7 @@ resource "aws_iam_policy" "lambda_policy" {
         "Action": [
           "lambda:InvokeFunction"
         ],
-        "Resource": "${var.athena_results_bucket_arn}"
+        "Resource": "${var.athena_bucket_arn}"
       },
       {
           "Effect": "Allow",
@@ -59,8 +59,10 @@ resource "aws_iam_policy" "lambda_policy" {
           "Resource": [
               "${var.data_bucket_arn}",
               "${var.data_bucket_arn}/*",
-              "${var.athena_results_bucket_arn}",
-              "${var.athena_results_bucket_arn}/*"
+              "${var.athena_bucket_arn}",
+              "${var.athena_bucket_arn}/*",
+              "${var.temp_bucket_arn}",
+              "${var.temp_bucket_arn}/*"
           ]
       }
   ]
