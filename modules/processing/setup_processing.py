@@ -5,6 +5,8 @@ def lambda_handler(event, context):
     ### Setup Athena Query
 
     athena_client = boto3.client('athena')
+    api_route = event['api_route']
+    table_name = api_route.replace("/","")
 
     params = {
     'region': 'us-east-1',
@@ -12,7 +14,7 @@ def lambda_handler(event, context):
     'bucket': 'shooting-insights-setup-processing-results',
     'create_table_query': 
     """
-    CREATE EXTERNAL TABLE IF NOT EXISTS shooting_insights.shooting_insights (
+    CREATE EXTERNAL TABLE IF NOT EXISTS {_table_name} (
          `spot_1` int,
          `spot_2` int,
          `spot_3` int,
@@ -30,8 +32,8 @@ def lambda_handler(event, context):
         ) 
         ROW FORMAT SERDE 'org.openx.data.jsonserde.JsonSerDe'
         WITH SERDEPROPERTIES (
-         'serialization.format' = '1' ) LOCATION 's3://shooting-insights-data/collection/3point/' TBLPROPERTIES ('has_encrypted_data'='false');
-    """
+         'serialization.format' = '1' ) LOCATION 's3://shooting-insights-data/collection{_api_route}/' TBLPROPERTIES ('has_encrypted_data'='false');
+    """.format(_api_route=api_route,_table_name= table_name)
     }
 
     create_table_query_response = athena_client.start_query_execution(

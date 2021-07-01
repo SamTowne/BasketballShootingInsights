@@ -1,12 +1,19 @@
 resource "aws_apigatewayv2_api" "api_gateway" {
   name          = "shooting_insights"
   protocol_type = "HTTP"
-  route_key     = "POST /si/submit"
   target        = aws_lambda_function.lambda.arn
 
   depends_on = [
     aws_lambda_function.lambda
   ]
+}
+
+# Create the API Routes
+resource "aws_apigatewayv2_route" "api_gw_route" {
+api_id = aws_apigatewayv2_api.api_gateway.id
+target = "integrations/${aws_apigatewayv2_integration.lambda_integration.id}"
+for_each = toset( ["POST /threepoint", "POST /midrange", "POST /devgru"] )
+route_key = each.key
 }
 
 resource "aws_apigatewayv2_integration" "lambda_integration" {

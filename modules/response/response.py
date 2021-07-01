@@ -8,7 +8,7 @@ def lambda_handler(event, context):
     temp_bucket = s3.Bucket('shooting-insights-temp')
     processed_temp_file = []
     
-    for obj in temp_bucket.objects.filter(Prefix="processed_temp/3point/"):
+    for obj in temp_bucket.objects.filter(Prefix="processed_temp/"):
       processed_temp_file = json.loads(obj.get()['Body'].read().decode('utf-8'))
 
     shots_made          = str(processed_temp_file['shots_made'])
@@ -78,7 +78,7 @@ def lambda_handler(event, context):
       <br>
       <h3>Shooting Stats (all time)</h3>
       <h4> 3 Point Shooting Drill </h4>
-      <p>Data collected from <b>{_total_shooting_drills}</b> shooting drills with 44 shot attempts each.
+      <p>Data collected from <b>{_total_shooting_drills}</b> shooting drills and <b>{_total_shot_attempts}</b> total shot attempts.
       <br>
       <p>3 Point Shooting Percentage: {_total_shooting_percentage}%.</p>
       <p>Spot 1 Percentage: {_spot1_percentage}%.</p>
@@ -101,6 +101,7 @@ def lambda_handler(event, context):
                 _shooting_percentage=shooting_percentage,
                 _temp=temp,
                 _total_shooting_drills=total_shooting_drills,
+                _total_shot_attempts=total_shot_attempts,
                 _total_shooting_percentage=total_shooting_percentage,
                 _spot1_percentage=spot1_percentage,
                 _spot2_percentage=spot2_percentage,
