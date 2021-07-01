@@ -9,13 +9,15 @@ def lambda_handler(event, context):
     shooting_insights_temp_bucket = s3.Bucket('shooting-insights-temp')
     json_file_prefix = []
     
-    for obj in shooting_insights_temp_bucket.objects.filter(Prefix="collection_temp/3point/"):
+    for obj in shooting_insights_temp_bucket.objects.filter(Prefix="collection_temp/"):
       json_file_prefix = json.loads(obj.get()['Body'].read().decode('utf-8'))
-
-    file_prefix = json_file_prefix['file']    
+    
+    file_prefix = json_file_prefix['file']
+    api_route = json_file_prefix['api_route']
+    table_name = api_route.replace("/","")
 
     ### Retrieve the shooting drill file ###
-    content_object = s3.Object('shooting-insights-data',"collection/3point/" + file_prefix + ".json")
+    content_object = s3.Object('shooting-insights-data',"collection" + api_route + "/" + file_prefix + ".json")
     file_content = content_object.get()['Body'].read().decode('utf-8')
     body = json.loads(file_content)
     
@@ -64,8 +66,8 @@ def lambda_handler(event, context):
         sum(spot_9),
         sum(spot_10),
         sum(spot_11)
-        from shooting_insights;
-    """
+        from "{_table_name}";
+    """.format(_table_name=table_name)
     }
 
     total_each_spot_response = client.start_query_execution(
@@ -81,10 +83,10 @@ def lambda_handler(event, context):
 
     # Create new json file with Athena execution IDs, shots made, shots attempted, shooting percentage, and the temperature 
     processed_file_content = json.dumps({'total_made_each_spot_athena_execution_id': total_each_spot_response['QueryExecutionId'],'shots_made': shots_made,'shots_attempted': shots_attempted,'shooting_percentage': shooting_percentage, 'temp': temp})
-    s3.Object('shooting-insights-data', 'processed/3point/' + file_prefix + ".json" ).put(Body=processed_file_content,ContentType="application/json")
+    s3.Object('shooting-insights-data', 'processed'+ api_route + "/" + file_prefix + ".json" ).put(Body=processed_file_content,ContentType="application/json")
 
     # Make a temp copy
-    s3.Object('shooting-insights-temp', 'processed_temp/3point/' + file_prefix + ".json").copy_from(CopySource='shooting-insights-data/processed/3point/' + file_prefix + ".json")
+    s3.Object('shooting-insights-temp', 'processed_temp' + api_route + "/" + file_prefix + ".json").copy_from(CopySource='shooting-insights-data/processed' + api_route + "/" + file_prefix + ".json")
     
 
     return {
