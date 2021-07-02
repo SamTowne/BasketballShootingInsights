@@ -28,7 +28,7 @@ I made Shooting Insights to practice serverless app dev skills. The goal is to d
  - **Cleanup** deletes temporary files created during runtime.
 
 ## Functionality
-Shooting Insights currently supports these shooting drill submissions. Each drill involves attempting 4 shots from each of 11 locations. The drills correlate to a route in the api gateway such as "https://AWS-Generated-ID.execute-api.AWS-Region.amazonaws.com/**drillname**"
+Shooting Insights currently supports these shooting drill submissions. Each drill involves attempting 4 shots from each of 11 locations. The drills correlate to an API route such as https://AWS-Generated-ID.execute-api.AWS-Region.amazonaws.com/**threepoint** or https://AWS-Generated-ID.execute-api.AWS-Region.amazonaws.com/**midrange**
 
 ### Three Point
 
@@ -38,6 +38,6 @@ Shooting Insights currently supports these shooting drill submissions. Each dril
 
 ![mid range shooting locations](img/mid_range.png)
 
-The result of a submission is an email.
+The result of a submission is an email. It contains the results of the submitted drill as well as the combined percentages of all previous drill submissions of the same type.
 
 ![email example](img/email_example.png)
