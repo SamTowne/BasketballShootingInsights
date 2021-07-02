@@ -16,6 +16,18 @@ def lambda_handler(event, context):
     api_route = json_file_prefix['api_route']
     table_name = api_route.replace("/","")
 
+    ### Determine full drill name
+    drill = "undetermined"
+    
+    if table_name == 'midrange':
+        drill = "Mid Range"
+    
+    if table_name == 'threepoint':
+        drill = "Three Point"
+    
+    if table_name == 'devgru':
+        drill = "DevGru"
+
     ### Retrieve the shooting drill file ###
     content_object = s3.Object('shooting-insights-data',"collection" + api_route + "/" + file_prefix + ".json")
     file_content = content_object.get()['Body'].read().decode('utf-8')
@@ -82,7 +94,7 @@ def lambda_handler(event, context):
     )
 
     # Create new json file with Athena execution IDs, shots made, shots attempted, shooting percentage, and the temperature 
-    processed_file_content = json.dumps({'total_made_each_spot_athena_execution_id': total_each_spot_response['QueryExecutionId'],'shots_made': shots_made,'shots_attempted': shots_attempted,'shooting_percentage': shooting_percentage, 'temp': temp})
+    processed_file_content = json.dumps({'total_made_each_spot_athena_execution_id': total_each_spot_response['QueryExecutionId'],'shots_made': shots_made,'shots_attempted': shots_attempted,'shooting_percentage': shooting_percentage, 'temp': temp,'drill': drill})
     s3.Object('shooting-insights-data', 'processed'+ api_route + "/" + file_prefix + ".json" ).put(Body=processed_file_content,ContentType="application/json")
 
     # Make a temp copy

@@ -15,6 +15,7 @@ def lambda_handler(event, context):
     shots_attempted     = str(processed_temp_file['shots_attempted'])
     shooting_percentage = str(processed_temp_file['shooting_percentage'])
     temp                = str(processed_temp_file['temp'])
+    drill               = str(processed_temp_file['drill'])
 
     ### Retrieve the Athena Results
     athena_client = boto3.client('athena')
@@ -71,16 +72,15 @@ def lambda_handler(event, context):
     # The HTML body of the email.
     BODY_HTML = """<html>
     <head></head>
-      <h3>Shooting Drill Results </h3>
+      <h3>{_drill} Shooting Drill Results </h3>
       <p>You made <b>{_shots_made} shots</b> out of {_shots_attempted}.</p>
       <p>Your shooting percentage was <b>{_shooting_percentage}%</b>.</p>
       <p>The temperature was <b>{_temp}&deg;F</b>.</p>
       <br>
-      <h3>Shooting Stats (all time)</h3>
-      <h4> 3 Point Shooting Drill </h4>
+      <h3>{_drill} Shooting Drill Results (all time)</h3>
       <p>Data collected from <b>{_total_shooting_drills}</b> shooting drills and <b>{_total_shot_attempts}</b> total shot attempts.
       <br>
-      <p>3 Point Shooting Percentage: {_total_shooting_percentage}%.</p>
+      <p>{_drill} Shooting Percentage: {_total_shooting_percentage}%.</p>
       <p>Spot 1 Percentage: {_spot1_percentage}%.</p>
       <p>Spot 2 Percentage: {_spot2_percentage}%.</p>
       <p>Spot 3 Percentage: {_spot3_percentage}%.</p>
@@ -96,7 +96,9 @@ def lambda_handler(event, context):
       <h4>A serverless app by Sam Towne ¯\_(ツ)_/¯</h4>
     </body>
     </html>
-                """.format(_shots_made=shots_made,
+                """.format(
+                _drill=drill,
+                _shots_made=shots_made,
                 _shots_attempted=shots_attempted,
                 _shooting_percentage=shooting_percentage,
                 _temp=temp,
