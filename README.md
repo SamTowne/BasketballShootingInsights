@@ -27,10 +27,16 @@ I made Shooting Insights to practice serverless app dev skills. The goal is to d
  - **Response** emails the results to the user.
  - **Cleanup** deletes temporary files created during runtime.
 
-## Functionality and Modularity
-Shooting Insights currently supports 3 point shooting drill submissions. The drill involves attempting 4 shots from each of 11 locations behind the arc. I plan to modularize the AWS backend so that it can support multiple types of drill submissions such as a mid-range drill or jump-shot drill.
+## Functionality
+Shooting Insights currently supports these shooting drill submissions. Each drill involves attempting 4 shots from each of 11 locations. The drills correlate to a route in the api gateway such as "https://AWS-Generated-ID.execute-api.AWS-Region.amazonaws.com/**drillname**"
 
-![half court shooting locations](img/3point.png)
+### Three Point
+
+![three point shooting locations](img/three_point.png)
+
+### Mid Range
+
+![mid range shooting locations](img/mid_range.png)
 
 The result of a submission is an email.
 
