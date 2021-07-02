@@ -144,7 +144,7 @@ resource "aws_s3_bucket_notification" "bucket_notification" {
     lambda_function_arn = "arn:aws:lambda:us-east-1:272773485930:function:response"
     events              = ["s3:ObjectCreated:*"]
     filter_prefix       = "total_made_each_spot_query/"
-    filter_suffix       = ".csv"
+    filter_suffix       = ".csv.metadata"
   }
 
   depends_on = [aws_lambda_permission.allow_bucket]
