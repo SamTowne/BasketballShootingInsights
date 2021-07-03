@@ -97,12 +97,12 @@ resource "aws_iam_role_policy_attachment" "lambda_policy_attachment" {
 }
 
 resource "aws_lambda_function" "lambda" {
-  filename         = "./modules/collection/collection_payload.zip"
+  filename         = "./modules/collect/collection_payload.zip"
   function_name    = "collection"
   role             = aws_iam_role.lambda_role.arn
   handler          = "collection.lambda_handler"
   runtime          = "python3.8"
-  source_code_hash = filebase64sha256("./modules/collection/collection_payload.zip")
+  source_code_hash = filebase64sha256("./modules/collect/collection_payload.zip")
 }
 
 # Build an AWS S3 bucket for Collection Temp
@@ -157,8 +157,8 @@ resource "aws_s3_bucket" "shooting_insights_temp_bucket" {
 
 data "archive_file" "lambda" {
   type = "zip"
-  source_file = "./modules/collection/collection.py"
-  output_path = "./modules/collection/collection_payload.zip"
+  source_file = "./modules/collect/collection.py"
+  output_path = "./modules/collect/collection_payload.zip"
 }
 
 output "output_arn" {

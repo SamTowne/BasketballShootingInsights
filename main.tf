@@ -59,7 +59,7 @@ provider "google" {
 # The lambda function stores the form data to an S3 bucket
 
 module "collection" {
-  source              = "./modules/collection"
+  source              = "./modules/collect"
   data_bucket_arn     = module.bootstrap.data_bucket_arn
 }
 
@@ -68,7 +68,7 @@ module "collection" {
 ##################
 
 module "processing" {
-  source              = "./modules/processing"
+  source              = "./modules/process"
   data_bucket_arn     = module.bootstrap.data_bucket_arn
 }
 
@@ -77,7 +77,7 @@ module "processing" {
 ################
 
 module "response" {
-  source                    = "./modules/response"
+  source                    = "./modules/respond"
   data_bucket_arn           = module.bootstrap.data_bucket_arn
   temp_bucket_arn           = module.collection.temp_bucket_arn
   athena_bucket_arn         = module.processing.athena_bucket_arn
@@ -88,7 +88,7 @@ module "response" {
 ###############
 
 module "cleanup" {
-  source = "./modules/cleanup"
+  source = "./modules/clean"
   temp_bucket_arn           = module.collection.temp_bucket_arn
   athena_bucket_arn         = module.processing.athena_bucket_arn
   processing_bucket_arn     = module.processing.processing_bucket_arn
