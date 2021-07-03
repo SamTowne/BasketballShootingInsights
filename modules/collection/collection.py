@@ -24,7 +24,7 @@ def lambda_handler(event, context):
     
     s3 = boto3.resource("s3")
 
-    # Put json file in shooting insights data bucket collection path 
+    # Put json file in data bucket path 
     s3.Bucket(bucket_name).put_object(Key=s3_path, Body=json.dumps(body), ContentType="application/json", )
 
     # Put json file containing the json file's name in unique bucket so processing can obtain the correct file

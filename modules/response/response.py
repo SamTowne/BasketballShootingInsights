@@ -64,7 +64,7 @@ def lambda_handler(event, context):
     SENDER = "Sender Name <chmod777recursively@gmail.com>"
     RECIPIENT = "chmod777recursively@gmail.com"
     AWS_REGION = "us-east-1"
-    SUBJECT = "Shooting Insights"
+    SUBJECT = "Basketball Drill Bot"
 
     # The email body for recipients with non-HTML email clients.
     BODY_TEXT = "Dear Samuel, You made " + shots_made + " shots out of " + shots_attempted + "." + "\r\n" + "The data from this shooting drill was stored to an AWS S3 Bucket."
