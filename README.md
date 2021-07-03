@@ -1,15 +1,19 @@
-# Shooting Insights :basketball:
+# Basketball Drill Bot :basketball:
 
-I made Shooting Insights to practice serverless app dev skills. The goal is to design and build a  serverless app that is functional and fun for me to use. I've always enjoyed basketball and decided to make something that is basketball-focused. Shooting Insights allows me to measure my basketball shooting drill results over time.
+Basketball Drill Bot measures basketball shooting drill results over time.
 
-## Tech Used :toolbox:
+## Architecture :building_construction:
+- Event-driven and decoupled with event handling performed via microservices
+- Serverless with flexible data stores
+
+## Tech Toolbox :toolbox:
 - Terraform
-- AWS Services: API Gateway, Lambda (boto3), s3, Athena, Glue, Simple Email Service, IAM
-- Languages: Hashicorp Configuration Language (HCL), Python, Node.js
+- API Gateway, Lambda, DyanmoDB, S3, Athena, Glue, Simple Email Service, IAM
+- Hashicorp Configuration Language (HCL), Python, Node.js
 - Google Forms
 
 ## Application Flow
-1. The user submits the Google Form containing the results from the shooting drill.
+1. The user submits a Google Form containing the results from the shooting drill.
 2. The form submit event triggers a Google Apps Script that makes an HTTP post to the API Gateway.
 3. The API Gateway receives the HTTP post and triggers the collection Lambda Function.
 4. The collection Lambda Function stores the post data and triggers the setup_processing Lambda Function.
@@ -28,7 +32,7 @@ I made Shooting Insights to practice serverless app dev skills. The goal is to d
  - **Cleanup** deletes temporary files created during runtime.
 
 ## Functionality
-Shooting Insights currently supports three point and mid range shooting drill submissions. Each drill involves attempting 4 shots from each of 11 locations. Each drill correlates to an API route such as 
+Basketball Drill Bot currently supports three point and mid range shooting drill submissions. Each drill involves attempting 4 shots from each of 11 locations. Each drill correlates to an API route such as 
 
 https://AWS-Generated-ID.execute-api.AWS-Region.amazonaws.com/threepoint
 
