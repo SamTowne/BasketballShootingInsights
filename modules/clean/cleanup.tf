@@ -60,18 +60,18 @@ resource "aws_iam_role_policy_attachment" "lambda_policy_attachment" {
 }
 
 resource "aws_lambda_function" "lambda" {
-  filename         = "./modules/cleanup/cleanup_payload.zip"
+  filename         = "./modules/clean/cleanup_payload.zip"
   function_name    = "cleanup"
   role             = aws_iam_role.lambda_role.arn
   handler          = "cleanup.lambda_handler"
   runtime          = "python3.8"
-  source_code_hash = filebase64sha256("./modules/cleanup/cleanup_payload.zip")
+  source_code_hash = filebase64sha256("./modules/clean/cleanup_payload.zip")
 }
 
 data "archive_file" "lambda" {
   type = "zip"
-  source_file = "./modules/cleanup/cleanup.py"
-  output_path = "./modules/cleanup/cleanup_payload.zip"
+  source_file = "./modules/clean/cleanup.py"
+  output_path = "./modules/clean/cleanup_payload.zip"
 }
 
 output "output_arn" {

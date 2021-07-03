@@ -233,12 +233,12 @@ resource "aws_iam_role_policy_attachment" "lambda_policy_attachment" {
 }
 
 resource "aws_lambda_function" "lambda" {
-  filename         = "./modules/processing/processing_payload.zip"
+  filename         = "./modules/process/processing_payload.zip"
   function_name    = "processing"
   role             = aws_iam_role.lambda_role.arn
   handler          = "processing.lambda_handler"
   runtime          = "python3.8"
-  source_code_hash = filebase64sha256("./modules/processing/processing_payload.zip")
+  source_code_hash = filebase64sha256("./modules/process/processing_payload.zip")
 }
 
 ### Setup-Processing Lambda
@@ -292,24 +292,24 @@ resource "aws_iam_role_policy_attachment" "setup_processing_lambda_policy_attach
 }
 
 resource "aws_lambda_function" "setup_processing_lambda" {
-  filename         = "./modules/processing/setup_processing_payload.zip"
+  filename         = "./modules/process/setup_processing_payload.zip"
   function_name    = "setup_processing"
   role             = aws_iam_role.lambda_role.arn
   handler          = "setup_processing.lambda_handler"
   runtime          = "python3.8"
-  source_code_hash = filebase64sha256("./modules/processing/setup_processing_payload.zip")
+  source_code_hash = filebase64sha256("./modules/process/setup_processing_payload.zip")
 }
 
 data "archive_file" "lambda" {
   type = "zip"
-  source_file = "./modules/processing/processing.py"
-  output_path = "./modules/processing/processing_payload.zip"
+  source_file = "./modules/process/processing.py"
+  output_path = "./modules/process/processing_payload.zip"
 }
 
 data "archive_file" "setup_processing_lambda" {
   type = "zip"
-  source_file = "./modules/processing/setup_processing.py"
-  output_path = "./modules/processing/setup_processing_payload.zip"
+  source_file = "./modules/process/setup_processing.py"
+  output_path = "./modules/process/setup_processing_payload.zip"
 }
 
 output "output_arn" {
