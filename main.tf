@@ -9,6 +9,7 @@ module "bootstrap" {
   data_bucket             = "shooting-insights-data"
   athena_results_bucket   = "shooting-insights-athena-results"
   tf_lock_dynamo_table    = "shooting-insights-dynamodb-terraform-locking"
+  event_dynamo_table      = "basketball-drill-bot-event"
 }
 
 ############################

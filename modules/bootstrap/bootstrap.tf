@@ -31,7 +31,7 @@ resource "aws_s3_bucket" "state_bucket" {
   }  
 }
 
-# Build a DynamoDB to use for terraform state locking
+# Build a DynamoDB Table to use for Terraform state locking
 resource "aws_dynamodb_table" "tf_lock_state" {
   name = var.tf_lock_dynamo_table
 
@@ -47,6 +47,47 @@ resource "aws_dynamodb_table" "tf_lock_state" {
     type = "S"
   }
 }
+
+# Build a DynamoDB Table to use for event persistence
+/*
+Data design primary and secondary indexing ideas..
+
+uuid of each event (keep application flow seperate for each event)
+uuid for each user (partition user data)
+the drill type (sorting by drill type)
+
+*/
+# resource "aws_dynamodb_table" "submit_event" {
+#   name = var.event_dynamo_table
+
+#   # Pay per request is cheaper for low-i/o applications, like our TF lock state
+#   billing_mode = "PAY_PER_REQUEST"
+  
+#   # Partition key for seperating data per user, attribute is the user's uuid
+#   hash_key = "user_id"
+
+#   attribute {
+#     name = "user_id"
+#     type = "S"
+#   }
+
+#   # Range key for sorting by event uuid, attribute is the uuid of the event
+#   range_key = "event_id"
+
+#   attribute {
+#     name = "event_id"
+#     type = "S"
+#   }
+
+#   # Range key for sorting by drill dype, attribute is the type of shooting drill that was submitted
+#   range_key = "drill_type"
+
+#   attribute {
+#     name = "drill_type"
+#     type = "S"
+#   }
+
+# }
 
 # Build an AWS S3 bucket for storing lambda data
 resource "aws_s3_bucket" "s3_data_bucket" {
