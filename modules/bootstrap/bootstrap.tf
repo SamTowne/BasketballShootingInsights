@@ -34,14 +34,9 @@ resource "aws_s3_bucket" "state_bucket" {
 # Build a DynamoDB Table to use for Terraform state locking
 resource "aws_dynamodb_table" "tf_lock_state" {
   name = var.tf_lock_dynamo_table
-
-  # Pay per request is cheaper for low-i/o applications, like our TF lock state
   billing_mode = "PAY_PER_REQUEST"
-
-  # Hash key is required, and must be an attribute
   hash_key = "LockID"
 
-  # Attribute LockID is required for TF to use this table for lock state
   attribute {
     name = "LockID"
     type = "S"
@@ -58,24 +53,15 @@ the drill type (sorting by drill type)
 
 */
 # resource "aws_dynamodb_table" "submit_event" {
-#   name = var.event_dynamo_table
+#   name = "deleteme"
 
-#   # Pay per request is cheaper for low-i/o applications, like our TF lock state
 #   billing_mode = "PAY_PER_REQUEST"
   
-#   # Partition key for seperating data per user, attribute is the user's uuid
+#   # Partition key per user, attribute is the user's uuid
 #   hash_key = "user_id"
 
 #   attribute {
 #     name = "user_id"
-#     type = "S"
-#   }
-
-#   # Range key for sorting by event uuid, attribute is the uuid of the event
-#   range_key = "event_id"
-
-#   attribute {
-#     name = "event_id"
 #     type = "S"
 #   }
 

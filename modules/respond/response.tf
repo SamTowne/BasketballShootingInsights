@@ -76,18 +76,18 @@ resource "aws_iam_role_policy_attachment" "lambda_policy_attachment" {
 }
 
 resource "aws_lambda_function" "lambda" {
-  filename         = "./modules/respond/response_payload.zip"
+  filename         = "${path.module}/response_payload.zip"
   function_name    = "response"
   role             = aws_iam_role.lambda_role.arn
   handler          = "response.lambda_handler"
   runtime          = "python3.8"
-  source_code_hash = filebase64sha256("./modules/respond/response_payload.zip")
+  source_code_hash = filebase64sha256("${path.module}/response_payload.zip")
 }
 
 data "archive_file" "lambda" {
   type = "zip"
-  source_file = "./modules/respond/response.py"
-  output_path = "./modules/respond/response_payload.zip"
+  source_file = "${path.module}/response.py"
+  output_path = "${path.module}/response_payload.zip"
 }
 
 output "output_arn" {
