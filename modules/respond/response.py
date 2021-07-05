@@ -4,13 +4,10 @@ import json
 def lambda_handler(event, context):
 
     ### Retrieve the shooting drill file ###
-    s3 = boto3.resource("s3")
-    temp_bucket = s3.Bucket('shooting-insights-temp')
-    processed_temp_file = []
-    
-    for obj in temp_bucket.objects.filter(Prefix="processed_temp/"):
-      processed_temp_file = json.loads(obj.get()['Body'].read().decode('utf-8'))
+    s3_client = boto3.client("s3")
+    processed_temp_file = json.loads(s3_client.get_object(Bucket='shooting-insights-temp',Key='temp.json')['Body'].read().decode('utf-8'))
 
+    athena_query_id     = str(processed_temp_file['total_made_each_spot_athena_execution_id'])
     shots_made          = str(processed_temp_file['shots_made'])
     shots_attempted     = str(processed_temp_file['shots_attempted'])
     shooting_percentage = str(processed_temp_file['shooting_percentage'])
@@ -19,7 +16,7 @@ def lambda_handler(event, context):
 
     ### Retrieve the Athena Results
     athena_client = boto3.client('athena')
-    total_made_each_spot_query_results = athena_client.get_query_results(QueryExecutionId=processed_temp_file['total_made_each_spot_athena_execution_id'])
+    total_made_each_spot_query_results = athena_client.get_query_results(QueryExecutionId=athena_query_id)
     rows = total_made_each_spot_query_results['ResultSet']['Rows']
     row2 = rows[1]
     data = row2['Data']
