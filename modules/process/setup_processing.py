@@ -1,20 +1,27 @@
-import json
 import boto3
 
+"""
+Collection Lambda invokes this.
+It starts an Athena create table query.
+The Athena table and query results path are named to match the API Gateway POST route.
+"""
 def lambda_handler(event, context):
-    ### Setup Athena Query
-
+    
+    # Initialize Athena boto3 client
     athena_client = boto3.client('athena')
+    
+    # Set the api route and table name
     api_route = event['api_route']
     table_name = api_route.replace("/","")
-
+    
+    # Query parameters
     params = {
     'region': 'us-east-1',
     'database': 'shooting_insights',
     'bucket': 'shooting-insights-setup-processing-results',
     'create_table_query': 
     """
-    CREATE EXTERNAL TABLE IF NOT EXISTS {_table_name} (
+    CREATE EXTERNAL TABLE IF NOT EXISTS shooting_insights.{_table_name} (
          `spot_1` int,
          `spot_2` int,
          `spot_3` int,
@@ -33,10 +40,11 @@ def lambda_handler(event, context):
         ROW FORMAT SERDE 'org.openx.data.jsonserde.JsonSerDe'
         WITH SERDEPROPERTIES (
          'serialization.format' = '1' ) LOCATION 's3://shooting-insights-data/collection{_api_route}/' TBLPROPERTIES ('has_encrypted_data'='false');
-    """.format(_api_route=api_route,_table_name= table_name)
+    """.format(_api_route=api_route,_table_name=table_name)
     }
 
-    create_table_query_response = athena_client.start_query_execution(
+    # Start query
+    athena_client.start_query_execution(
         QueryString=params["create_table_query"],
         QueryExecutionContext={
             'Database': params['database']
@@ -50,4 +58,4 @@ def lambda_handler(event, context):
     return {
         'statusCode': 200,
         'body': 'hi'
-    }    
+    }

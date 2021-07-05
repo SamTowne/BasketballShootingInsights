@@ -1,22 +1,20 @@
 import json
 import boto3
 
+"""
+TODO: Cleanup this function
+"""
 def lambda_handler(event, context):
     
-    s3 = boto3.resource("s3")
 
-    ### Retrieve the shooting drill file name ###
-    shooting_insights_temp_bucket = s3.Bucket('shooting-insights-temp')
-    json_file_prefix = []
-    
-    for obj in shooting_insights_temp_bucket.objects.filter(Prefix="collection_temp/"):
-      json_file_prefix = json.loads(obj.get()['Body'].read().decode('utf-8'))
-    
-    file_prefix = json_file_prefix['file']
-    api_route = json_file_prefix['api_route']
+    ### Retrieve the temp file data ###
+    s3_client = boto3.client("s3")
+    temp_json = json.loads(s3_client.get_object(Bucket='shooting-insights-temp',Key='temp.json')['Body'].read().decode('utf-8'))
+    file_prefix = temp_json['file']
+    api_route = temp_json['api_route']
     table_name = api_route.replace("/","")
 
-    ### Determine full drill name
+    ### Determine full drill name ###
     drill = "undetermined"
     
     if table_name == 'midrange':
@@ -29,7 +27,8 @@ def lambda_handler(event, context):
         drill = "DevGru"
 
     ### Retrieve the shooting drill file ###
-    content_object = s3.Object('shooting-insights-data',"collection" + api_route + "/" + file_prefix + ".json")
+    s3_resource = boto3.resource("s3")
+    content_object = s3_resource.Object('shooting-insights-data',"collection" + api_route + "/" + file_prefix + ".json")
     file_content = content_object.get()['Body'].read().decode('utf-8')
     body = json.loads(file_content)
     
@@ -56,7 +55,7 @@ def lambda_handler(event, context):
 
     ### Athena Query
 
-    client = boto3.client('athena')
+    athena_client = boto3.client('athena')
 
     params = {
     'region': 'us-east-1',
@@ -82,7 +81,7 @@ def lambda_handler(event, context):
     """.format(_table_name=table_name)
     }
 
-    total_each_spot_response = client.start_query_execution(
+    total_each_spot_response = athena_client.start_query_execution(
         QueryString=params["total_made_each_spot_query"],
         QueryExecutionContext={
             'Database': params['database']
@@ -93,12 +92,12 @@ def lambda_handler(event, context):
         WorkGroup='shooting_insights'
     )
 
-    # Create new json file with Athena execution IDs, shots made, shots attempted, shooting percentage, and the temperature 
+    # Create new json file with Athena execution ID, shots made, shots attempted, shooting percentage, temperature, and session uuid
     processed_file_content = json.dumps({'total_made_each_spot_athena_execution_id': total_each_spot_response['QueryExecutionId'],'shots_made': shots_made,'shots_attempted': shots_attempted,'shooting_percentage': shooting_percentage, 'temp': temp,'drill': drill})
-    s3.Object('shooting-insights-data', 'processed'+ api_route + "/" + file_prefix + ".json" ).put(Body=processed_file_content,ContentType="application/json")
+    s3_resource.Object('shooting-insights-data', 'processed'+ api_route + "/" + file_prefix + ".json" ).put(Body=processed_file_content,ContentType="application/json")
 
-    # Make a temp copy
-    s3.Object('shooting-insights-temp', 'processed_temp' + api_route + "/" + file_prefix + ".json").copy_from(CopySource='shooting-insights-data/processed' + api_route + "/" + file_prefix + ".json")
+    # Put temp.json in the temp bucket. This file is read by response Lambda.
+    s3_resource.Object('shooting-insights-temp',"temp.json").copy_from(CopySource='shooting-insights-data/processed' + api_route + "/" + file_prefix + ".json")
     
 
     return {
