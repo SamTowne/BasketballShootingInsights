@@ -12,6 +12,14 @@ Basketball Drill Bot measures basketball shooting drill results over time.
 - Hashicorp Configuration Language (HCL), Python, Node.js
 - Google Forms
 
+## Collect
+
+![API Gateway](img/api_gw.png) ![Lambda](img/lambda.png) ![bucket](img/bucket.png)
+
+## Process
+
+![Lambda](img/lambda.png) ![Glue](img/glue.png) ![athena](img/athena.png) ![bucket](img/bucket.png)
+
 ## Application Flow
 1. The user submits a Google Form containing the results from the shooting drill.
 2. The form submit event triggers a Google Apps Script that makes an HTTP post to the API Gateway.

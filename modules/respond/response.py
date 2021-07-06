@@ -58,14 +58,14 @@ def lambda_handler(event, context):
         
     ### Send an email using Simple Email Service ###
 
-    SENDER = "Sender Name <chmod777recursively@gmail.com>"
+    SENDER = "Brick The Basketball Bot <chmod777recursively@gmail.com>"
     RECIPIENT = "chmod777recursively@gmail.com"
     AWS_REGION = "us-east-1"
-    SUBJECT = "Basketball Drill Bot"
+    SUBJECT = drill + " Drill Results"
 
     # The email body for recipients with non-HTML email clients.
     BODY_TEXT = "Dear Samuel, You made " + shots_made + " shots out of " + shots_attempted + "." + "\r\n" + "The data from this shooting drill was stored to an AWS S3 Bucket."
-    #BODY_HTML = "test html body " + str(json.loads(processed_temp_file))
+
     # The HTML body of the email.
     BODY_HTML = """<html>
     <head></head>
@@ -73,24 +73,63 @@ def lambda_handler(event, context):
       <p>You made <b>{_shots_made} shots</b> out of {_shots_attempted}.</p>
       <p>Your shooting percentage was <b>{_shooting_percentage}%</b>.</p>
       <p>The temperature was <b>{_temp}&deg;F</b>.</p>
-      <br>
       <h3>{_drill} Shooting Drill Results (all time)</h3>
-      <p>Data collected from <b>{_total_shooting_drills}</b> shooting drills and <b>{_total_shot_attempts}</b> total shot attempts.
+      <p>Data collected from <b>{_total_shooting_drills}</b> {_drill} shooting drills and <b>{_total_shot_attempts}</b> total shot attempts.
       <br>
       <p>{_drill} Shooting Percentage: {_total_shooting_percentage}%.</p>
-      <p>Spot 1 Percentage: {_spot1_percentage}%.</p>
-      <p>Spot 2 Percentage: {_spot2_percentage}%.</p>
-      <p>Spot 3 Percentage: {_spot3_percentage}%.</p>
-      <p>Spot 4 Percentage: {_spot4_percentage}%.</p>
-      <p>Spot 5 Percentage: {_spot5_percentage}%.</p>
-      <p>Spot 6 Percentage: {_spot6_percentage}%.</p>
-      <p>Spot 7 Percentage: {_spot7_percentage}%.</p>
-      <p>Spot 8 Percentage: {_spot8_percentage}%.</p>
-      <p>Spot 9 Percentage: {_spot9_percentage}%.</p>
-      <p>Spot 10 Percentage: {_spot10_percentage}%.</p>
-      <p>Spot 11 Percentage: {_spot11_percentage}%.</p>
+      <table border="0">
+        <tr style="height:4px;">
+            <th align=left>Location</th>
+            <th align=left>Percentage</th>
+        </tr>
+        <tr style="height:4px;">
+            <td width="20px">1</td>
+            <td width="20px">{_spot1_percentage}%</td>
+        </tr>
+        <tr style="height:4px;">
+            <td width="20px">2</td>
+            <td width="20px">{_spot2_percentage}%</td>
+        </tr>
+        <tr style="height:4px;">
+            <td width="20px">3</td>
+            <td width="20px">{_spot3_percentage}%</td>
+        </tr>
+        <tr style="height:4px;">
+            <td width="20px">4</td>
+            <td width="20px">{_spot4_percentage}%</td>
+        </tr>
+        <tr style="height:4px;">
+            <td width="20px">5</td>
+            <td width="20px">{_spot5_percentage}%</td>
+        </tr>
+        <tr style="height:4px;">
+            <td width="20px">6</td>
+            <td width="20px">{_spot6_percentage}%</td>
+        </tr>
+        <tr style="height:4px;">
+            <td width="20px">7</td>
+            <td width="20px">{_spot7_percentage}%</td>
+        </tr>
+        <tr style="height:4px;">
+            <td width="20px">8</td>
+            <td width="20px">{_spot8_percentage}%</td>
+        </tr>
+        <tr style="height:4px;">
+            <td width="20px">9</td>
+            <td width="20px">{_spot9_percentage}%</td>
+        </tr>
+        <tr style="height:4px;">
+            <td width="20px">10</td>
+            <td width="20px">{_spot10_percentage}%</td>
+        </tr>
+        <tr style="height:4px;">
+            <td width="20px">11</td>
+            <td width="20px">{_spot11_percentage}%</td>
+        </tr>
+      </table>
       <br>
-      <h4>A serverless app by Sam Towne ¯\_(ツ)_/¯</h4>
+      <h4>Brick the Basketball Bot is an event-driven, serverless app by Sam Towne ¯\_(ツ)_/¯</h4>
+      <h4>https://github.com/SamTowne/BasketballDrillBot</h4>
     </body>
     </html>
                 """.format(
@@ -147,7 +186,7 @@ def lambda_handler(event, context):
         Source=SENDER,
     )
 
-    ### Invoke cleanup lambda (async)
+    # Invoke cleanup lambda (async)
 
     lambda_client = boto3.client("lambda")
     lambda_client.invoke(FunctionName='cleanup',
