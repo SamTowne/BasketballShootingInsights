@@ -15,7 +15,7 @@ Basketball Drill Bot measures basketball shooting drill results over time.
 
 ## Application Flow
 
-Form Submit :arrow_right: AWS API Gateway :arrow_right: Collect :arrow_right: Setup Process :arrow_right: Process :arrow_right: Respond :arrow_right: Cleanup
+Submit :arrow_right: Collect :arrow_right: Pre-Process :arrow_right: Process :arrow_right: Respond :arrow_right: Clean
 
 1. The user submits a Google Form with the results from a shooting drill.
 2. The form submit event invokes an OnSubmit node.js handler which sends the results over to an AWS API Gateway endpoint.
