@@ -2,27 +2,36 @@
 
 Basketball Drill Bot measures basketball shooting drill results over time.
 
-## Architecture :building_construction:
-- Event-driven and decoupled with event handling performed via microservices
-- Serverless with flexible data stores
+## App Strategy :building_construction:
+- Event-driven and decoupled
+- Serverless data processing
+- Low cost per handled event
 
 ## Tech Toolbox :toolbox:
 - Terraform
 - API Gateway, Lambda, DyanmoDB, S3, Athena, Glue, Simple Email Service, IAM
-- Hashicorp Configuration Language (HCL), Python, Node.js
+- Hashicorp Configuration Language, Python, Node.js
 - Google Forms
 
 ## Application Flow
-1. The user submits a Google Form containing the results from the shooting drill.
-2. The form submit event triggers a Google Apps Script that makes an HTTP post to the API Gateway.
-3. The API Gateway receives the HTTP post and triggers the collection Lambda Function.
-4. The collection Lambda Function stores the post data and triggers the setup_processing Lambda Function.
-5. The setup_processing Lambda Function starts execution of an Athena Query.
-6. The Athena Query results file creation invokes the processing Lambda Function (via bucket notification).
-7. The processing Lambda Function starts execution of an Athena Query.
-8. The Athena Query results file creation invokes the response Lambda Function (via bucket notification).
-9. The response Lambda Function formats the data into an email, sends it, and invokes the cleanup Lambda Function.
-10. The cleanup Lambda Function runs to remove temp files.
+
+Form Submit :arrow_right: AWS API Gateway :arrow_right: Collect :arrow_right: Setup Process :arrow_right: Process :arrow_right: Respond :arrow_right: Cleanup
+
+1. The user submits a Google Form with the results from a shooting drill.
+2. The form submit event invokes an OnSubmit node.js handler which sends the results over to an AWS API Gateway endpoint.
+3. The API Gateway invokes collection.py Lambda and hands off the event data.
+4. collection.py stores the data to an S3 bucket, creates a temp file for this event, and invokes Lambda setup_processing.py.
+5. setup_processing.py starts execution of an Athena Query to create a database and glue table for this event.
+6. The completion of the query creates a bucket notification. The bucket notification invokes processing.py Lambda.
+7. processing.py starts execution of an Athena Query to obtain historical data for this user. This includes data from previous submissions of the same type of shooting drill.
+8. The completion of the query creates a bucket notification. The bucket notification invokes response.py Lambda.
+9. response.py formats the athena results into an email, sends it, and invokes the cleanup.py Lambda.
+10. cleanup.py runs to remove temp files.
+
+The response email provides drill stats.
+
+![email example](img/email_example.png)
+
 
 ## Terraform Modules
  - **Bootstrap** creates the foundational cloud resources.
@@ -48,7 +57,3 @@ https://AWS-Generated-ID.execute-api.AWS-Region.amazonaws.com/midrange
 ### Mid Range
 
 ![mid range shooting locations](img/mid_range.png)
-
-The result of a google form submission is an email containing results of the submitted drill as well as the combined percentages of all previous drill submissions of the same type.
-
-![email example](img/email_example.png)
