@@ -17,16 +17,26 @@ Basketball Drill Bot measures basketball shooting drill results over time.
 
 Submit :arrow_right: Collect :arrow_right: Pre-Process :arrow_right: Process :arrow_right: Respond :arrow_right: Clean
 
-1. The user submits a Google Form with the results from a shooting drill.
-2. The form submit event invokes an OnSubmit node.js handler which sends the results over to an AWS API Gateway endpoint.
-3. The API Gateway invokes collection.py Lambda and hands off the event data.
-4. collection.py stores the data to an S3 bucket, creates a temp file for this event, and invokes Lambda setup_processing.py.
-5. setup_processing.py starts execution of an Athena Query to create a database and glue table for this event.
-6. The completion of the query creates a bucket notification. The bucket notification invokes processing.py Lambda.
-7. processing.py starts execution of an Athena Query to obtain historical data for this user. This includes data from previous submissions of the same type of shooting drill.
-8. The completion of the query creates a bucket notification. The bucket notification invokes response.py Lambda.
-9. response.py formats the athena results into an email, sends it, and invokes the cleanup.py Lambda.
-10. cleanup.py runs to remove temp files.
+**Submit**
+- Google Form submission triggers an HTTP post to an AWS API Gateway. 
+- The API Gateway invokes Collect Lambda.
+
+**Collect**
+- Collect stores the data to an S3 bucket, creates a temp file for this event, and invokes Pre-Process Lambda.
+
+**Pre-Process**
+- Pre-Process executes an Athena Query to create a database and glue table for this event.
+- When the query completes, a bucket notification invokes Process Lambda.
+
+**Process**
+- Process executes another Athena Query. This is to obtain the data needed to perform average shooting percentage calculations against all previous submissions of this drill type.
+- When the query completes, a bucket notification invokes Respond Lambda.
+
+**Respond**
+- Respond sends an email with the results and invokes Clean. 
+
+**Clean**
+- Clean runs to remove temp files.
 
 The response email provides drill stats.
 
@@ -34,9 +44,9 @@ The response email provides drill stats.
 
 
 ## Terraform Modules
- - **Bootstrap** creates the foundational cloud resources.
- - **Collection** feeds data into the app. The entry point is a Google form. The user inputs the results of their shooting drill. This includes the shots made from each location and the current temperature. Submission of the form kicks off a serverless app flow to store the data in AWS S3 for further processing.
- - **Processing** draws insight from the data. The collection step results in raw json objects stored in s3. Each POST to the api gateway results in an individual json object being stored. Processing runs queries against these json files. When complete, it triggers the response step.
+ - **Bootstrap** creates the Terraform state bucket and dynamodb state-locking table.
+ - **Collection** feeds data into the application.
+ - **Processing** draws insight from the data. The collection step results in raw json objects stored in s3. Each POST to the api gateway results in an individual json object being stored. Processing runs queries against the recent data as well as the historicall (previously submitted) json files.
  - **Response** emails the results to the user.
  - **Cleanup** deletes temporary files created during runtime.
 
