@@ -44,12 +44,6 @@ provider "aws" {
  }
 }
 
-provider "google" {
-  project = "shooting_insights"
-  region  = "us-west1"
-  zone    = "us-west1-b"
-}
-
 ##################
 ### Collection ###
 ##################
