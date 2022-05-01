@@ -4,11 +4,11 @@
 
 # Build an S3 bucket and DynamoDB for Terraform state and locking
 module "bootstrap" {
-  source                  = "../modules/bootstrap"
-  tfstate_bucket          = "shooting-insights-terraform-tfstate"
-  data_bucket             = "shooting-insights-data"
-  athena_results_bucket   = "shooting-insights-athena-results"
-  tf_lock_dynamo_table    = "shooting-insights-dynamodb-terraform-locking"
+  source                = "../modules/bootstrap"
+  tfstate_bucket        = "shooting-insights-terraform-tfstate"
+  data_bucket           = "shooting-insights-data"
+  athena_results_bucket = "shooting-insights-athena-results"
+  tf_lock_dynamo_table  = "shooting-insights-dynamodb-terraform-locking"
 }
 
 ############################
@@ -16,6 +16,13 @@ module "bootstrap" {
 ############################
 
 terraform {
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 4.0"
+    }
+  }
+
   backend "s3" {
     bucket         = "shooting-insights-terraform-tfstate"
     key            = "terraform.tfstate"
@@ -32,16 +39,16 @@ terraform {
 # Credentials are exported
 
 provider "aws" {
-  region  = "us-east-1"
+  region = "us-east-1"
 
   default_tags {
-   tags = {
-     Terraform   = "true"
-     Environment = "Test"
-     Owner       = "Sam"
-     Project     = "ShootingInsights"
-   }
- }
+    tags = {
+      Terraform   = "true"
+      Environment = "Test"
+      Owner       = "Sam"
+      Project     = "ShootingInsights"
+    }
+  }
 }
 
 ##################
@@ -53,8 +60,8 @@ provider "aws" {
 # The lambda function stores the form data to an S3 bucket
 
 module "collection" {
-  source              = "../modules/collect"
-  data_bucket_arn     = module.bootstrap.data_bucket_arn
+  source          = "../modules/collect"
+  data_bucket_arn = module.bootstrap.data_bucket_arn
 }
 
 ##################
@@ -62,8 +69,8 @@ module "collection" {
 ##################
 
 module "processing" {
-  source              = "../modules/process"
-  data_bucket_arn     = module.bootstrap.data_bucket_arn
+  source          = "../modules/process"
+  data_bucket_arn = module.bootstrap.data_bucket_arn
 }
 
 ################
@@ -71,10 +78,10 @@ module "processing" {
 ################
 
 module "response" {
-  source                    = "../modules/respond"
-  data_bucket_arn           = module.bootstrap.data_bucket_arn
-  temp_bucket_arn           = module.collection.temp_bucket_arn
-  athena_bucket_arn         = module.processing.athena_bucket_arn
+  source            = "../modules/respond"
+  data_bucket_arn   = module.bootstrap.data_bucket_arn
+  temp_bucket_arn   = module.collection.temp_bucket_arn
+  athena_bucket_arn = module.processing.athena_bucket_arn
 }
 
 ###############
@@ -82,8 +89,8 @@ module "response" {
 ###############
 
 module "cleanup" {
-  source = "../modules/clean"
-  temp_bucket_arn           = module.collection.temp_bucket_arn
-  athena_bucket_arn         = module.processing.athena_bucket_arn
-  processing_bucket_arn     = module.processing.processing_bucket_arn
+  source                = "../modules/clean"
+  temp_bucket_arn       = module.collection.temp_bucket_arn
+  athena_bucket_arn     = module.processing.athena_bucket_arn
+  processing_bucket_arn = module.processing.processing_bucket_arn
 }

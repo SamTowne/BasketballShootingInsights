@@ -1,34 +1,31 @@
+locals {
+  lambda_common_libs_layer_path = "${path.module}/workspace/output"
+  lambda_common_libs_layer_zip_name = "${path.module}/workspace/output/lambdalayer.zip"
+}
+
+
 # Build an S3 bucket to store TF state
 resource "aws_s3_bucket" "state_bucket" {
   bucket = var.tfstate_bucket
+}
 
-  # Tells AWS to encrypt the S3 bucket at rest by default
-  server_side_encryption_configuration {
-    rule {
-      apply_server_side_encryption_by_default {
-        sse_algorithm = "AES256"
-      }
+resource "aws_s3_bucket_server_side_encryption_configuration" "default" {
+  bucket = aws_s3_bucket.state_bucket.id
+
+  rule {
+    bucket_key_enabled = true
+
+    apply_server_side_encryption_by_default {
+      sse_algorithm     = "aws:kms"
     }
   }
+}
 
-  # Tells AWS to keep a version history of the state file
-  versioning {
-    enabled = true
+resource "aws_s3_bucket_versioning" "versioning_example" {
+  bucket = aws_s3_bucket.state_bucket.id
+  versioning_configuration {
+    status = "Enabled"
   }
-
-  lifecycle_rule {
-    id = "state bucket lifecycle"
-    enabled = true
-    abort_incomplete_multipart_upload_days = 1
-    noncurrent_version_transition {
-      days = 1
-      storage_class = "INTELLIGENT_TIERING"      
-    }
-
-    transition {
-      storage_class = "INTELLIGENT_TIERING"
-    }
-  }  
 }
 
 # Build a DynamoDB Table to use for Terraform state locking
@@ -63,24 +60,39 @@ resource "aws_s3_bucket" "s3_data_bucket" {
     ]
 }
 EOT
+}
 
-  server_side_encryption_configuration {
-    rule {
-      apply_server_side_encryption_by_default {
-        sse_algorithm = "AES256"
-      }
+resource "aws_s3_bucket_server_side_encryption_configuration" "data" {
+  bucket = aws_s3_bucket.s3_data_bucket.id
+
+  rule {
+    bucket_key_enabled = true
+
+    apply_server_side_encryption_by_default {
+      sse_algorithm     = "aws:kms"
     }
   }
+}
 
-  lifecycle_rule {
-    id = "data bucket lifecycle"
-    enabled = true
-    abort_incomplete_multipart_upload_days = 1
-    
-    noncurrent_version_expiration {
-      days = 1
-    }
+resource "aws_s3_bucket_versioning" "data" {
+  bucket = aws_s3_bucket.s3_data_bucket.id
+  versioning_configuration {
+    status = "Enabled"
   }
+}
+
+data "archive_file" "lambda_common_libs_layer_package" {
+  type = "zip"
+  source_dir = local.lambda_common_libs_layer_path
+  output_path = local.lambda_common_libs_layer_zip_name
+}
+
+resource "aws_lambda_layer_version" "lambda_layer" {
+  filename   = local.lambda_common_libs_layer_zip_name
+  layer_name = "basketball-drill-bot"
+  source_code_hash = data.archive_file.lambda_common_libs_layer_package.output_base64sha256
+
+  compatible_runtimes = ["python3.8"]
 }
 
 output "data_bucket" {
