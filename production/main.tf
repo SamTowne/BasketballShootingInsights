@@ -94,3 +94,11 @@ module "cleanup" {
   athena_bucket_arn     = module.processing.athena_bucket_arn
   processing_bucket_arn = module.processing.processing_bucket_arn
 }
+
+####################
+### Presentation ###
+####################
+
+module "presentation" {
+  source = "../modules/presentation"
+}
