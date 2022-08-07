@@ -62,15 +62,8 @@ The response email provides drill stats for immediate feedback of the processed 
  - **Cleanup** deletes temporary files created during runtime.
  - **Presentation** configuration for Amazon Quicksight dashboards.
 
-## Functionality
-Basketball Drill Bot currently supports three point and mid range shooting drill submissions. Each drill involves attempting 4 shots from each of 11 locations. Each drill correlates to an API route such as 
-
-https://AWS-Generated-ID.execute-api.AWS-Region.amazonaws.com/threepoint
-
-or 
-
-https://AWS-Generated-ID.execute-api.AWS-Region.amazonaws.com/midrange
-
+## Shooting Drills
+Each drill involves attempting 4 shots from each of 11 locations. The data is segregated by API route such as https://AWS-Generated-ID.execute-api.AWS-Region.amazonaws.com/threepoint or https://AWS-Generated-ID.execute-api.AWS-Region.amazonaws.com/midrange.
 
 ### Three Point
 
