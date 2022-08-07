@@ -1,6 +1,6 @@
-# Basketball Drill Bot :basketball:
+# Basketball Shooting Drill Data Processing and Visualization :basketball:
 
-Basketball Drill Bot measures basketball shooting drill results over time.
+Provides insight into basketball shooting drill results over time.
 
 ## App Strategy :building_construction:
 - Event-driven and decoupled
@@ -14,19 +14,11 @@ Basketball Drill Bot measures basketball shooting drill results over time.
 - Hashicorp Configuration Language, Python, Node.js
 - Google Forms
 
-### 3 Point Shooting Drill Dashboard
-<iframe
-    width="960"
-    height="720"
-    src="https://us-east-1.quicksight.aws.amazon.com/sn/embed/share/accounts/272773485930/dashboards/7ff57b68-48d9-44e0-874d-0f335f1b5471?directory_alias=samtowne-dev">
-</iframe>
+## Data Visualization
 
-### Midrange Shooting Drill Dashboard
-<iframe
-    width="960"
-    height="720"
-    src="https://us-east-1.quicksight.aws.amazon.com/sn/embed/share/accounts/272773485930/dashboards/994bad2e-57b3-45c7-bc21-168516fe5a83?directory_alias=samtowne-dev">
-</iframe>
+[![3 Point Dashboard (Click to link to live dashboard)](/img/threepoint_dashboard.png)](https://us-east-1.quicksight.aws.amazon.com/sn/embed/share/accounts/272773485930/dashboards/7ff57b68-48d9-44e0-874d-0f335f1b5471?directory_alias=samtowne-dev)
+
+[![Midrange Dashboard (Click to link to live dashboard)](/img/midrange_dashboard.png)](https://us-east-1.quicksight.aws.amazon.com/sn/embed/share/accounts/272773485930/dashboards/994bad2e-57b3-45c7-bc21-168516fe5a83?directory_alias=samtowne-dev)
 
 ## Application Flow
 
@@ -53,7 +45,7 @@ Submit :arrow_right: Collect :arrow_right: Pre-Process :arrow_right: Process :ar
 **Clean**
 - Clean runs to remove temp files.
 
-The response email provides drill stats.
+The response email provides drill stats for immediate feedback of the processed drill, and compares against historical submissions.
 
 ![email example](img/email_example.png)
 
