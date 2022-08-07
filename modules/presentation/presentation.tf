@@ -14,9 +14,3 @@ resource "aws_quicksight_data_source" "default" {
 
   type = "S3"
 }
-
-data "archive_file" "quicksight_manifest" {
-  type        = "json"
-  source_file = "${path.module}/quicksight_manifest.json"
-  output_path = "${path.module}/quicksight_manifest.json"
-}

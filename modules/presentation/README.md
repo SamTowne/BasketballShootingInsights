@@ -7,7 +7,7 @@ This module manages Quicksight resources for the presentation of shooting drill 
 * An IAM role was created as part of the Console setup process and is not managed in this repo at this time
 * The actual dashboard configuration is done via console
 * Manifest Configuration File manually uploaded
-* In the future, it may be good to consider managing all or most of these things via a lambda/API calls so that more of these steps can be done programatically.
+* Consider managing these things via Terraform with lambda/API calls vs. maintianing documentation for the AWS Console steps
 
 
 ### Manifest Configuration File
