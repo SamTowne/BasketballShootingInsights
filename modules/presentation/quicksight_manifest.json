@@ -1,0 +1,13 @@
+{
+    "fileLocations": [
+        {
+            "URIs": [
+                "s3://shooting-insights-data/collection/midrange/",
+                "s3://shooting-insights-data/collection/threepoint/"       
+            ]
+        }
+    ],
+    "globalUploadSettings": {
+        "format": "JSON"
+    }
+}
