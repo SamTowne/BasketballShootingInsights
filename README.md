@@ -16,6 +16,8 @@ Provides insight into basketball shooting drill results over time.
 
 ## Data Visualization
 
+Data visualization is performed using Amazon Quicksight. The images below can be clicked to link to the live dashboards from AWS Quicksight.
+
 [![3 Point Dashboard (Click to link to live dashboard)](/img/threepoint_dashboard.png)](https://us-east-1.quicksight.aws.amazon.com/sn/embed/share/accounts/272773485930/dashboards/7ff57b68-48d9-44e0-874d-0f335f1b5471?directory_alias=samtowne-dev)
 
 [![Midrange Dashboard (Click to link to live dashboard)](/img/midrange_dashboard.png)](https://us-east-1.quicksight.aws.amazon.com/sn/embed/share/accounts/272773485930/dashboards/994bad2e-57b3-45c7-bc21-168516fe5a83?directory_alias=samtowne-dev)
