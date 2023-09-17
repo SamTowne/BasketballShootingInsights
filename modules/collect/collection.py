@@ -6,6 +6,7 @@ import logging
 
 
 LOGGER = logging.getLogger()
+LOGGER.setLevel("INFO")
 
 """
 This is the target for API Gateway post routes.

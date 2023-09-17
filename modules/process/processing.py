@@ -4,6 +4,7 @@ import logging
 
 
 LOGGER = logging.getLogger()
+LOGGER.setLevel("INFO")
 
 """
 TODO: Cleanup this function
