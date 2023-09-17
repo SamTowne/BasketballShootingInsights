@@ -32,3 +32,5 @@ override.tf.json
 
 # Lambda Layer files
 modules/bootstrap/workspace*
+
+.vscode/*

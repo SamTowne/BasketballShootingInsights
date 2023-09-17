@@ -1,30 +1,37 @@
 import json
 import boto3
+import logging
+
+
+LOGGER = logging.getLogger()
 
 """
 TODO: Cleanup this function
 """
 def lambda_handler(event, context):
-    
 
     ### Retrieve the temp file data ###
     s3_client = boto3.client("s3")
-    temp_json = json.loads(s3_client.get_object(Bucket='shooting-insights-temp',Key='temp.json')['Body'].read().decode('utf-8'))
+    temp_json = json.loads(
+        s3_client.get_object(
+            Bucket='shooting-insights-temp',Key='temp.json')['Body'].read().decode('utf-8'))
     file_prefix = temp_json['file']
     api_route = temp_json['api_route']
     table_name = api_route.replace("/","")
 
     ### Determine full drill name ###
     drill = "undetermined"
-    
+
     if table_name == 'midrange':
         drill = "Mid Range"
-    
+
     if table_name == 'threepoint':
         drill = "Three Point"
-    
+
     if table_name == 'devgru':
         drill = "DevGru"
+
+    LOGGER.info("Processing for drill type: %s.",drill)
 
     ### Retrieve the shooting drill file ###
     s3_resource = boto3.resource("s3")
@@ -32,6 +39,7 @@ def lambda_handler(event, context):
     file_content = content_object.get()['Body'].read().decode('utf-8')
     body = json.loads(file_content)
     
+    LOGGER.info(f'Obtained shot results: {body}')
     ### Calculate shots made and shooting percentage ###
     spot_1 = body["spot_1"]
     spot_2 = body["spot_2"]
@@ -94,11 +102,18 @@ def lambda_handler(event, context):
 
     # Create new json file with Athena execution ID, shots made, shots attempted, shooting percentage, temperature, and session uuid
     processed_file_content = json.dumps({'total_made_each_spot_athena_execution_id': total_each_spot_response['QueryExecutionId'],'shots_made': shots_made,'shots_attempted': shots_attempted,'shooting_percentage': shooting_percentage, 'temp': temp,'drill': drill})
-    s3_resource.Object('shooting-insights-data', 'processed'+ api_route + "/" + file_prefix + ".json" ).put(Body=processed_file_content,ContentType="application/json")
-
-    # Put temp.json in the temp bucket. This file is read by response Lambda.
-    s3_resource.Object('shooting-insights-temp',"temp.json").copy_from(CopySource='shooting-insights-data/processed' + api_route + "/" + file_prefix + ".json")
+    LOGGER.info(f"Attempting to upload processed file content: {processed_file_content}.")
     
+    try:
+        s3_resource.Object('shooting-insights-data', 'processed'+ api_route + "/" + file_prefix + ".json" ).put(Body=processed_file_content,ContentType="application/json")
+    except Exception as error:
+        LOGGER.error(error)
+    
+    try:
+        # Put temp.json in the temp bucket. This file is read by response Lambda.
+        s3_resource.Object('shooting-insights-temp',"temp.json").copy_from(CopySource='shooting-insights-data/processed' + api_route + "/" + file_prefix + ".json")
+    except Exception as error:
+        LOGGER.error(error)
 
     return {
         'statusCode': 200,
