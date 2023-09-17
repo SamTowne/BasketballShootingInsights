@@ -10,7 +10,7 @@ def lambda_handler(event, context):
     ### Retrieve the shooting drill file ###
     s3_client = boto3.client("s3")
     processed_temp_file = json.loads(s3_client.get_object(Bucket='shooting-insights-temp',Key='temp.json')['Body'].read().decode('utf-8'))
-
+    LOGGER.info('Recieved processed temp file %s.', processed_temp_file)
     athena_query_id     = str(processed_temp_file['total_made_each_spot_athena_execution_id'])
     shots_made          = str(processed_temp_file['shots_made'])
     shots_attempted     = str(processed_temp_file['shots_attempted'])
@@ -21,6 +21,7 @@ def lambda_handler(event, context):
     ### Retrieve the Athena Results
     athena_client = boto3.client('athena')
     total_made_each_spot_query_results = athena_client.get_query_results(QueryExecutionId=athena_query_id)
+    LOGGER.info('Obtained Athena query results: %s.', total_made_each_spot_query_results)
     rows = total_made_each_spot_query_results['ResultSet']['Rows']
     row2 = rows[1]
     data = row2['Data']
@@ -165,33 +166,39 @@ def lambda_handler(event, context):
     ses_client = boto3.client('ses',region_name=AWS_REGION)
     
     # Send the email
-    send_email_response = ses_client.send_email(
-        Destination={
-            'ToAddresses': [
-                RECIPIENT,
-            ],
-        },
-        Message={
-            'Body': {
-                'Html': {
-                    'Charset': CHARSET,
-                    'Data': BODY_HTML,
+    try:
+        send_email_response = ses_client.send_email(
+            Destination={
+                'ToAddresses': [
+                    RECIPIENT,
+                ],
+            },
+            Message={
+                'Body': {
+                    'Html': {
+                        'Charset': CHARSET,
+                        'Data': BODY_HTML,
+                    },
+                    'Text': {
+                        'Charset': CHARSET,
+                        'Data': BODY_TEXT,
+                    },
                 },
-                'Text': {
+                'Subject': {
                     'Charset': CHARSET,
-                    'Data': BODY_TEXT,
+                    'Data': SUBJECT,
                 },
             },
-            'Subject': {
-                'Charset': CHARSET,
-                'Data': SUBJECT,
-            },
-        },
-        Source=SENDER,
-    )
+            Source=SENDER,
+        )
+    except Exception as e:
+        LOGGER.error(e)
+
+    LOGGER.info('Email attempt response: %s.', send_email_response)
 
     # Invoke cleanup lambda (async)
 
+    LOGGER.info('Invoking cleanup lambda.')
     lambda_client = boto3.client("lambda")
     lambda_client.invoke(FunctionName='cleanup',
                      InvocationType='Event',
