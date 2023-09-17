@@ -16,7 +16,7 @@ Provides insight into basketball shooting drill results over time.
 
 ## Data Visualization
 
-Data visualization is performed using Amazon Quicksight. The images below can be clicked to link to the live dashboards from AWS Quicksight.
+Data visualization is performed using Amazon Quicksight. The processed data is read using Quicksight's SPICE engine to provide visualizations. SPICE is able to determine the schema of JSON files stored in an S3 bucket and this made for a quick visualization of the collected data. A disadvantage of the SPICE engine is that it performs an entire read of the dataset each time a refresh is required.
 
 [![3 Point Dashboard (Click to link to live dashboard)](/img/threepoint_dashboard.png)](https://us-east-1.quicksight.aws.amazon.com/sn/embed/share/accounts/272773485930/dashboards/7ff57b68-48d9-44e0-874d-0f335f1b5471?directory_alias=samtowne-dev)
 
