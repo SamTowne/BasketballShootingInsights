@@ -1,4 +1,8 @@
+import logging
 import boto3
+
+LOGGER = logging.getLogger()
+LOGGER.setLevel("INFO")
 
 """
 Collection Lambda invokes this.
@@ -43,17 +47,21 @@ def lambda_handler(event, context):
     """.format(_api_route=api_route,_table_name=table_name)
     }
 
+    LOGGER.info('Starting Athena Query with parameters: %s.',params)
     # Start query
-    athena_client.start_query_execution(
-        QueryString=params["create_table_query"],
-        QueryExecutionContext={
-            'Database': params['database']
-        },
-        ResultConfiguration={
-            'OutputLocation': 's3://' + params['bucket'] + '/create_table_query/'
-        },
-        WorkGroup='shooting_insights'
-    )
+    try:
+        athena_client.start_query_execution(
+            QueryString=params["create_table_query"],
+            QueryExecutionContext={
+                'Database': params['database']
+            },
+            ResultConfiguration={
+                'OutputLocation': 's3://' + params['bucket'] + '/create_table_query/'
+            },
+            WorkGroup='shooting_insights'
+        )
+    except Exception as e:
+        LOGGER.error(e)
 
     return {
         'statusCode': 200,
