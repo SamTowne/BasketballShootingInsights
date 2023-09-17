@@ -2,6 +2,10 @@ import json
 import boto3
 import uuid
 from botocore.exceptions import ClientError
+import logging
+
+
+LOGGER = logging.getLogger()
 
 """
 This is the target for API Gateway post routes.
@@ -13,10 +17,10 @@ def lambda_handler(event, context):
 
     # Make a unique file name for this event
     file_name = str(uuid.uuid4())
-
+    LOGGER.info('Processing file %s.', file_name)
     # Set the route used
     api_route = event['path']
-    
+
     # Initialize boto3 s3 client
     s3_resource = boto3.resource("s3")
 
@@ -28,13 +32,14 @@ def lambda_handler(event, context):
     s3_resource.Bucket("shooting-insights-temp").put_object(Key="temp.json", Body= payload, ContentType="application/json", )
 
     # Invoke setup processing asynchronously
+    LOGGER.info('Invoking Setup Processing lambda with payload %s.', payload)
     lambda_client = boto3.client("lambda")
     lambda_client.invoke(FunctionName='setup_processing',
                      InvocationType='Event',
                      LogType='None',
                      Payload=payload
                      )
-    
+
     return {
         'statusCode': 200,
         'body': 'hi'
